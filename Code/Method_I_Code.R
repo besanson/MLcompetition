@@ -1,33 +1,50 @@
+##-------------------------------------------------------------------------------------------------
+##   Random Forest
+##-------------------------------------------------------------------------------------------------
+
+##DESCRIPTION: this code is going to apply Random Forest to the Cover Type Data
+
+
+##-------------------------------------------------------------------------------------------------
+##some links that might be usefull:
+#
+
+##-------------------------------------------------------------------------------------------------
 rm(list=ls())
-install.packages("caret")
-install.packages("e1071")
-install.packages("doMC")
-install.packages("doParallel")
-library(caret)
-library(e1071)
-#library(doMC)
-library(doParallel)
-#setwd("C:/Users/DON/Dropbox/ML Competition/MLcompetition")
-#folder<-"C:/Users/DON/Dropbox/ML Competition/MLcompetition"
 
+## LIBRARIES
 
+# Import packages and functions
+##Packages that are used in this code
 
-# Data
+if (!require("caret")) install.packages("caret")
+if (!require("e1071")) install.packages("e1071")
+#if (!require("doMC")) install.packages("doMC")
+if (!require("doParallel")) install.packages("doParallel")
+
+##-------------------------------------------------------------------------------------------------
+##INCLUDE DATA
+
 training_set <- read.table(file = "Kaggle_Covertype_training.csv", sep = ",", header = T)
 testing_set <- read.table("Kaggle_Covertype_test.csv", sep = ",", header = T)
-id_testing <- testing_set$id
-training_set <- training_set[,-1]
+id_testing <- testing_set$id  ## keep the id 
+training_set <- training_set[,-1]  ## remove the id column
 testing_set  <- testing_set[,-1]
 
-# Hay variables que no tienen variabildiad. Todos Zeros o unos
-conVarianza <- apply(training_set, 2, function(x) sd(x) != 0) #con variance me quedo con las columas que teien varianza
+# Looking if all the variables have variability
+conVarianza <- apply(training_set, 2, function(x) sd(x) != 0) #keep only those that have variability
 conVarianza <- names(conVarianza[conVarianza==T])
 
 training_set <- training_set[, conVarianza]
 testing_set  <- testing_set[, conVarianza[1:(length(conVarianza)-1)]]
 
+# Doing some preprocess, as normalizing in this case
 preprocesamiento <- preProcess(training_set[,-ncol(training_set)],
                                method = c("center", "scale"))
+
+##-------------------------------------------------------------------------------------------------
+##   End of "preparing" the data, now the training beggins
+##-------------------------------------------------------------------------------------------------
 
 ###z-scores.... para arboles no hace nada.. sirve para SVM.. sirve para Redes Neurales
 
