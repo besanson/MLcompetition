@@ -2,16 +2,22 @@
 ##   Support Vector Machine
 ##-------------------------------------------------------------------------------------------------
 
-##DESCRIPTION: this code is going to apply Support Vector Machine to the Cover Type Data
+##DESCRIPTION:
+# this code is going to apply Support Vector Machine to the Cover Type Data
 
+
+## USEFULL LINKS:
+## http://topepo.github.io/caret/Support_Vector_Machines.html
+
+
+## GENERAL INFO:
+# SVM depends on the method we choose the Kernel function to be in. We will have to choose 
+# some different methods and see which one is best in this data set. Depending on the kind of 
+# Kernel there will be some tuning parameters
 
 ##-------------------------------------------------------------------------------------------------
-##some links that might be usefull:
-#
-
-##-------------------------------------------------------------------------------------------------
-rm(list=ls())
-
+##Marias directory
+setwd("~/Documents/Box Sync/Current/Machine Learning/MLcompetition")
 ## LIBRARIES
 
 # Import packages and functions
@@ -19,45 +25,57 @@ rm(list=ls())
 
 if (!require("caret")) install.packages("caret")
 if (!require("e1071")) install.packages("e1071")
-#if (!require("doMC")) install.packages("doMC")
+if (!require("doMC")) install.packages("doMC")
 if (!require("doParallel")) install.packages("doParallel")
 
 ##-------------------------------------------------------------------------------------------------
-##Include Data
-
+##INCLUDE DATA
+rm(list=ls())
 training_set <- read.table("Data/Kaggle_Covertype_training.csv", sep = ",", header = T)
 testing_set <- read.table("Data/Kaggle_Covertype_test.csv", sep = ",", header = T)
-id_testing <- testing_set$id ## keep the id 
-training_set <- training_set[,-1] ## remove the id
+testing_trueLabel<-read.table("Data/Kaggle_Covertype_sample.csv", sep=",",header=T)
+id_testing <- testing_set$id  ## keep the id 
+training_set <- training_set[,-1]  ## remove the id column
 testing_set  <- testing_set[,-1]
 
-# Hay variables que no tienen variabildiad. Todos Zeros o unos
-conVarianza <- apply(training_set, 2, function(x) sd(x) != 0) #con variance me quedo con las columas que teien varianza
+# Looking if all the variables have variability
+conVarianza <- apply(training_set, 2, function(x) sd(x) != 0) #keep only those that have variability
 conVarianza <- names(conVarianza[conVarianza==T])
 
 training_set <- training_set[, conVarianza]
 testing_set  <- testing_set[, conVarianza[1:(length(conVarianza)-1)]]
 
-preprocesamiento <- preProcess(training_set[,-ncol(training_set)],
+# Doing some preprocess, as normalizing in this case
+NormData <- preProcess(training_set[,-ncol(training_set)],
                                method = c("center", "scale"))
+mm <- data.frame(predict(NormData,training_set[,-(ncol(training_set))]),
+                 Cover_Type = as.factor(training_set$Cover_Type)) ##labels
 
-###z-scores.... para arboles no hace nada.. sirve para SVM.. sirve para Redes Neurales
+##-------------------------------------------------------------------------------------------------
+##   End of "preparing" the data, now the training beggins
+##-------------------------------------------------------------------------------------------------
 
-training_set <- data.frame(predict(preprocesamiento, 
-                                   training_set[,-ncol(training_set)]),
-                           Cover_Type = as.factor(training_set$Cover_Type))
-###aplico prepocesamiento al training set sin la ultima columna.. y agrgo el cover_type como factor
+##-------------------------------------------------------------------------------------------------
+##   Doing some test  to see if the code works with only 10000 random observations
 
+n<-nrow(training_set)
+##preparing some data
+idx <- seq(1:n)
+idx <- idx[sample(1:n)]
+##shuffel the data
+data<-mm[idx[1:10000],]
+##-------------------------------------------------------------------------------------------------
 
-# Hago las predicciones
+# So it's "replicable" we seet the seed.
 set.seed(4321)
 
-
-#train control define el metodo del experimento.. numer cantidad de folds
+#train control defines the method of the experiment.. number of folds
 fitControl <- trainControl(method = "cv",
-                           number = 5,
+                           number = 5, #normally we use 10 groups for validating
                            verboseIter = TRUE)
 
+
+###From this moment on I don't understand the errors
 
 #Parallel
 #run model in parallel
@@ -65,22 +83,28 @@ cl <- makeCluster(detectCores())
 registerDoParallel(cl)
 
 
-# Random Forest
-# Random Forest entreno el modelo... 
-rfFit <- train(Cover_Type ~ ., data = training_set,
-               method = "rf",
+# SVM
+# SVM train the model
+rfFit <- train(y=data$Cover_Type , x = data[,-ncol(data)],
+               method = "lssvmRadial",
                trControl = fitControl,
-               tuneGrid = expand.grid(mtry = c(20)),
-               ntree = c(1000))
+               sigma=0.8)##using the CV validation
 
 #tunegrid..... que parametros...raiz cuadarada de la cantidad de variables...
 #random forest no hace overfiting...
 #tuneGrid = expand.grid(mtry = c(5, 10, 20, 50)),
 #ntree = c(250)
 
-predicciones <- predict(rfFit, predict(preprocesamiento, testing_set))
-
+predicciones <- predict(rfFit, predict(NormData, testing_set[1:1000,]))
 stopCluster(cl)
+
+
+##test the error
+table(predicciones, testing_trueLabel[1:1000,2])
+
+mean(testing_trueLabel[1:1000,2]==predicciones)
+
+
 
 salida <- data.frame(id =  id_testing, Cover_Type = predicciones)
 write.table(salida, "Pred_Alessio_3.csv", sep = ",", row.names = FALSE, quote = FALSE)
