@@ -88,6 +88,8 @@ rfFit <- train(Cover_Type ~ ., data = training_set,
 
 # The Test 3 with this method had a Tune Grid of 20 and a ntree of 1000.
 # A correct practitional approach would be Tune grid =sqrt(54)=7 and ntree between 100 and 500
+# Test 4 Tune grid=8 and ntree=250. Result 0.81
+# Test 5 Bagging tune grid = 53 and ntree=150 Result 0.89810
 
 predicciones <- predict(rfFit, predict(preprocesamiento, testing_set))
 
