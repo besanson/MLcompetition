@@ -2,12 +2,17 @@
 ##   Random Forest
 ##-------------------------------------------------------------------------------------------------
 
-##DESCRIPTION: this code is going to apply Random Forest to the Cover Type Data
+##DESCRIPTION:
+# this code is going to apply Random Forest to the Cover Type Data
 
 
-##-------------------------------------------------------------------------------------------------
-##some links that might be usefull:
-#
+## USEFULL LINKS:
+## 
+
+
+## GENERAL INFO:
+# 
+
 
 ##-------------------------------------------------------------------------------------------------
 rm(list=ls())
@@ -25,8 +30,8 @@ if (!require("doParallel")) install.packages("doParallel")
 ##-------------------------------------------------------------------------------------------------
 ##INCLUDE DATA
 
-training_set <- read.table(file = "Kaggle_Covertype_training.csv", sep = ",", header = T)
-testing_set <- read.table("Kaggle_Covertype_test.csv", sep = ",", header = T)
+training_set <- read.table("Data/Kaggle_Covertype_training.csv", sep = ",", header = T)
+testing_set <- read.table("Data/Kaggle_Covertype_test.csv", sep = ",", header = T)
 id_testing <- testing_set$id  ## keep the id 
 training_set <- training_set[,-1]  ## remove the id column
 testing_set  <- testing_set[,-1]
@@ -48,17 +53,21 @@ preprocesamiento <- preProcess(training_set[,-ncol(training_set)],
 
 ###z-scores.... para arboles no hace nada.. sirve para SVM.. sirve para Redes Neurales
 
+
+##Maria: NO LO ENTIENDO
 training_set <- data.frame(predict(preprocesamiento, 
                                    training_set[,-ncol(training_set)]),
                            Cover_Type = as.factor(training_set$Cover_Type))
-###aplico prepocesamiento al training set sin la ultima columna.. y agrgo el cover_type como factor
+###aplico prepocesamiento al training set sin la ultima columna.. y hago el cover_type como factor
+
+##-------------------------------------------------------------------------------------------------
+# PREDICTIONS
 
 
-# Hago las predicciones
-set.seed(4321)
+set.seed(4321) ## we need to prove that this is "universal" so we set a new seed
 
 
-#train control define el metodo del experimento.. numer cantidad de folds
+#train control defines the method of the experiment.. number of folds
 fitControl <- trainControl(method = "cv",
                            number = 5,
                            verboseIter = TRUE)
