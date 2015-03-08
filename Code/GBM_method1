@@ -1,0 +1,203 @@
+---
+title: "Initial_EDA_ML_Proj"
+author: "JMciver"
+date: "Monday, March 02, 2015"
+output: html_document
+---
+
+require(data.table)
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+
+#install.packages("gbm")
+#install_github("harrysouthworth/gbm")
+require(gbm)
+library(gbm)
+
+#install.packages("devtools")
+require(devtools)
+library(devtools)
+
+
+
+
+#require(data.table)
+#library(data.table)
+
+training <- read.csv("C:/Users/User/Desktop/Machine Learning/Competition/Kaggle_Covertype_training.csv")
+
+summary(training)
+
+training <- as.data.frame(training)
+
+vars <- colnames(training)
+
+smallVars <- vars[1:15]
+smallVars <- c(smallVars,vars[56])
+
+smallTrain <- training[,smallVars]
+
+set.seed=1111
+smallValidation <- smallTrain[sample(nrow(smallTrain),20000),]
+
+smallTrain <- subset(smallTrain, !(id %in% smallValidation$id))
+
+
+covertype = as.matrix(smallTrain$Cover_Type)
+
+covertypeFull <- as.matrix(training$Cover_Type)
+
+smallTrain <- smallTrain[,1:15]
+smallValidation <- smallValidation[,1:15]
+
+end_trn = nrow(smallTrain)
+
+all = rbind(smallTrain,smallValidation)
+
+end = nrow(all)
+
+
+#all <- all[,2:ncol(all)]
+all <- smallTrain[,2:ncol(smallTrain)]
+
+#n.trees: I usually grow an initial model adding more and more trees until gbm.perf says I have enough (actually, typically to 1.2 times that value)
+
+ntrees = 1000
+
+
+##STILL NEED TO ADD Cross Validation for parameters
+
+#nrow(all[1:end_trn,])
+
+#end_trn <- nrow(all)
+
+Model = gbm.fit( 
+  x =  all[1:end_trn,]  #dataframe of features
+  , y = covertype #dependent variable
+  #two ways to fit the model
+  #use gbm.fit if you are going to specify x = and y = 
+  #instead of using a formula
+  #if there are lots of features, I think it's easier to specify 
+  #x and y instead of using a formula
+  
+  
+  , distribution = "multinomial"
+  #use bernoulli for binary outcomes
+  #other values are "gaussian" for GBM regression 
+  #or "adaboost"
+  
+  
+  , n.trees = ntrees
+  #Choose this value to be large, then we will prune the
+  #tree after running the model
+  
+  
+  , shrinkage = 0.01 
+  #smaller values of shrinkage typically give slightly better performance
+  #the cost is that the model takes longer to run for smaller values
+  
+  
+  , interaction.depth = 3
+  #use cross validation to choose interaction depth!!
+  
+  
+  , n.minobsinnode = 10
+  #n.minobsinnode has an important effect on overfitting!
+  #decreasing this parameter increases the in-sample fit, 
+  #but can result in overfitting
+  
+  , nTrain = round(end_trn * 0.8)
+  #use this so that you can select the number of trees at the end
+  
+  #, var.monotone = c() 
+  #can help with overfitting, will smooth bumpy curves
+  
+  , verbose = TRUE #print the preliminary output
+)  
+
+
+
+
+#look at the last model built
+#Relative influence among the variables can be used in variable selection
+summary(Model)
+#If you see one variable that's much more important than all of the rest,
+#that could be evidence of overfitting.
+
+#optimal number of trees based upon CV
+gbm.perf(Model)
+
+#look at the effects of each variable, does it make sense?
+?plot.gbm
+for(i in 1:length(Model$var.names)){
+  plot(Model, i.var = i
+       , ntrees = gbm.perf(Model, plot.it = FALSE) #optimal number of trees
+       , type = "response" #to get fitted probabilities
+       )
+}
+
+###########################################
+
+
+
+
+
+
+
+################ Make predictions ##################
+#test set predictions
+TestPredictions = predict(object = Model,newdata =training[(end_trn+1):end,]
+                          , n.trees = gbm.perf(Model, plot.it = FALSE)
+                          , type = "response") #to output a probability
+#training set predictions
+TrainPredictions = predict(object = Model,newdata =training[1:end_trn,]
+                           , n.trees = gbm.perf(Model, plot.it = FALSE)
+                           , type = "response")
+
+
+#round the predictions to zero or one
+#in general, don't do this!
+#it was only because the answers in the comp had to be 0 or 1
+
+#TestPredictions = round(TestPredictions)
+#TrainPredictions = round(TrainPredictions)
+#could also mess around with different cutoff values
+#would need CV to determine the best
+
+Full <- rbind(as.data.frame(TestPredictions),as.data.frame(TrainPredictions))
+
+Predictions <- apply(Full,1,which.max)
+
+table(apply(Full,1,which.max))
+
+table(covertypeFull)
+
+#in sample classification accuracy
+1 - sum(abs(covertypeFull - Predictions)) / length(Predictions) 
+#depending upon the tuning parameters, 
+#I've gotten this as high as 99%, but that model 
+#resulted in lower test set scores
+
+
+#to get predicted out of sample accuracy
+#need to set aside a testing data set
+
+
+
+install.packages("mboost")
+library(mboost)
+vignette(package = "mboost", "mboost_tutorial")
+
+
+createDataPartition
+
+set.seed(998)
+inTraining <- createDataPartition(Sonar$Class, p = .75, list = FALSE)
+training <- Sonar[ inTraining,]
+testing  <- Sonar[-inTraining,]
+
+```
