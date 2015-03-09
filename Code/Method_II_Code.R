@@ -15,9 +15,14 @@
 # some different methods and see which one is best in this data set. Depending on the kind of 
 # Kernel there will be some tuning parameters
 
+##SVM function works directly with cross validation of 10-fold.
+
 ##-------------------------------------------------------------------------------------------------
 ##Marias directory
 setwd("~/Documents/Box Sync/Current/Machine Learning/MLcompetition")
+
+cl <- makeCluster(detectCores()) ## detect the cores in the machine
+
 ## LIBRARIES
 
 # Import packages and functions
@@ -63,48 +68,38 @@ n<-nrow(training_set)
 idx <- seq(1:n)
 idx <- idx[sample(1:n)]
 ##shuffel the data
-data<-mm[idx[1:10000],]
+data<-mm[idx[1:1000],]
 ##-------------------------------------------------------------------------------------------------
-
 # So it's "replicable" we seet the seed.
+#train control defines the method of the experiment.. number of folds
+#fitControl <- trainControl(method = "cv",
+                           #number = 5, #normally we use 10 groups for validating
+                           #verboseIter = TRUE)
+##Trying another package e1071:
+
+## Linear -----------------------------------------------------------------------------
 set.seed(4321)
 
-#train control defines the method of the experiment.. number of folds
-fitControl <- trainControl(method = "cv",
-                           number = 5, #normally we use 10 groups for validating
-                           verboseIter = TRUE)
-
-
-###From this moment on I don't understand the errors
-
-#Parallel
-#run model in parallel
-cl <- makeCluster(detectCores())
 registerDoParallel(cl)
+Linear_svm<-tune(svm,Cover_Type~., data=data, kernel="linear", scale=FALSE,
+                ranges=list(cost=c(0.001,0.01,0.1,1,5,10,100)))
 
+Linear_ypredict<-predict(Linear_svm$best.model,testing_set) #predict labels
+Linear_error<-mean(testing_trueLabel[,2]==Linear_ypredict) #error of Linear
 
-# SVM
-# SVM train the model
-rfFit <- train(y=data$Cover_Type , x = data[,-ncol(data)],
-               method = "lssvmRadial",
-               trControl = fitControl,
-               sigma=0.8)##using the CV validation
-
-#tunegrid..... que parametros...raiz cuadarada de la cantidad de variables...
-#random forest no hace overfiting...
-#tuneGrid = expand.grid(mtry = c(5, 10, 20, 50)),
-#ntree = c(250)
-
-predicciones <- predict(rfFit, predict(NormData, testing_set[1:1000,]))
 stopCluster(cl)
 
 
-##test the error
-table(predicciones, testing_trueLabel[1:1000,2])
+## Radial -----------------------------------------------------------------------------
+registerDoParallel(cl)
 
-mean(testing_trueLabel[1:1000,2]==predicciones)
+Radial_svm<-tune(svm,Cover_Type~.,data=data, kernel="radial", scale=FALSE,
+                ranges=list(cost=c(0.1,1,10,100,1000), ## different cost associated for the model
+                            gamma=c(0.5,1,2,3,4))) ## different gammas for the model
 
 
+Radial_ypredict<-predict(Radial_svm$best.model,testing_set) ##predict labels (best model)
 
-salida <- data.frame(id =  id_testing, Cover_Type = predicciones)
-write.table(salida, "Pred_Alessio_3.csv", sep = ",", row.names = FALSE, quote = FALSE)
+Radial_error<-mean(testing_trueLabel[,2]==Radial_ypredict) ## error of Radial
+
+##  -----------------------------------------------------------------------------
