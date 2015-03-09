@@ -8,6 +8,7 @@
 
 ## USEFULL LINKS:
 ## http://topepo.github.io/caret/Support_Vector_Machines.html
+## http://cran.r-project.org/web/packages/e1071/e1071.pdf
 
 
 ## GENERAL INFO:
