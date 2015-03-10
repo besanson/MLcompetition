@@ -71,7 +71,7 @@ n<-nrow(training_set)
 idx <- seq(1:n)
 idx <- idx[sample(1:n)]
 ##shuffel the data
-data<-mm[idx[1:100],]
+data<-mm[idx[1:10000],]
 ##-------------------------------------------------------------------------------------------------
 # So it's "replicable" we seet the seed.
 #train control defines the method of the experiment.. number of folds
@@ -99,14 +99,14 @@ stopCluster(cl)
 
 
 ## Radial -----------------------------------------------------------------------------
-registerDoParallel(cl)
 
-Radial_costList<-c(0.1,1,10,100,1000)
-gammaList<-c(0.5,1,2,3,4)
+Radial_costList<-c(0.1,1,10)
+gammaList<-c(0.5,1,2)
 
-Radial_costList<-rep(Radial_costList,length(Radial_gammaList))
-Radial_gammaList<-c(rep(gammaList[1],5),rep(gammaList[2],5),rep(gammaList[3],5),rep(gammaList[4],5),rep(gammaList[5],5))
-
+Radial_costList<-rep(Radial_costList,length(gammaList))
+Radial_gammaList<-c(rep(gammaList[1],3),rep(gammaList[2],3),rep(gammaList[3],3))
+cost<-Radial_costList[1]
+gamma<-Radial_gammaList[1]
 registerDoParallel(cl)
 
 Radial_results<- foreach(cost = Radial_costList, gamma=Radial_gammaList,.combine=rbind,.packages=c("e1071","doMC","caret")) %dopar% {
