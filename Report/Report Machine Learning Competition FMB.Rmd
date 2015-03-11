@@ -1,0 +1,72 @@
+---
+title: "Machine Learning Competition: Report on Forest Cover Type Prediction"
+author: "Fernandez, María, McIver, Jordan, Besanson, Gaston"
+output: rmarkdown::tufte_handout
+---
+
+# Introduction
+
+\newthought{This report} has the purpose to explain our experience on the Forest Cover Type Prediction's Competition.^[https://inclass.kaggle.com/c/prediction-of-a-forest-covertype] This experience starts with `Data exploration and Feature Creation`, `Pre-Processing`, `Machine Learning Methods`, `Results over this dataset`, `Conclusion`.
+
+# Data Description^[The Feature creation is explained in the attached powerpoint presentation.]
+
+how many features. how many classes. Table explaning what is the class more populated. In test and trainning set.
+IDEAS?
+
+# Pre-Processing
+
+We try PCA. Did not work. Why? Explain the pre-processing. Why we did it.
+
+# Machine Learning Methods
+
+## Random Forest
+What package we used. Why we select this method. Literature
+
+## Support Vector Machine
+What package we used. Why we select this method. Literature
+
+## Gradient Boosting Methods
+What package we used. Why we select this method. Literature
+
+## Deep Learning. Just for fun
+What package we used. Why we select this method. Literature
+
+# Results
+
+Decide to do Cross Validation. The accuracy in the training. accuarcy in the leaderboard. ROC. Tables
+IDEAS?
+
+If we have the 3 methods.. we can do a voting......
+
+# Conclusion
+
+
+----------------------------------------------------------------
+
+\begin{marginfigure}
+$$\frac{d}{dx}\left( \int_{0}^{x} f(u)\,du\right)=f(x).$$
+\caption{An equation}
+\end{marginfigure}
+
+Note the use of the `\caption` command to add additional text below the equation.
+
+## Full Width Figures
+
+You can arrange for figures to span across the entire page by using the `fig.fullwidth` chunk option. 
+
+```{r, fig.width = 10, fig.height = 2, fig.fullwidth = TRUE, fig.cap = "Full width figure"}
+library(ggplot2)
+qplot(wt, mpg, data=mtcars, colour=factor(cyl))
+```
+
+
+# Tables
+
+You can use the **xtable** package to format \LaTeX\ tables that integrate well with the rest of the Tufte handout style. Note that it's important to set the `xtable.comment` and `xtable.booktabs` options as shown below to ensure the table is formatted correctly for inclusion in the document.
+
+```{r, results='asis'}
+library(xtable)
+options(xtable.comment = FALSE)
+options(xtable.booktabs = TRUE)
+xtable(head(mtcars[,1:6]), caption = "First rows of mtcars")
+```
