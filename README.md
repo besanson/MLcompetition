@@ -14,5 +14,5 @@ NN,GBM,DL)
 1) Use the following methods SVM, GBM and RF.   
 2) Add new features.  
 3) The output would be:    
-    1. Report written in RMD telling: i) Introduction ii) Description on the data iii) Methods iv) Result v) Conclusion. 
-    2. Powerpoint Presentation on the Feature Creation.
+    1. Report written in RMD telling: i) Introduction ii) Description on the data iii) Methods iv) Result v) Conclusion.   
+    2. Powerpoint Presentation on the Feature Creation.  
