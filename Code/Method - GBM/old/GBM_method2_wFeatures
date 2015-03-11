@@ -1,0 +1,182 @@
+---
+title: "parralel gbm"
+output: html_document
+---
+
+```{r}
+
+rm(list = ls(all = TRUE))
+gc()
+
+if (!require("caret")) install.packages("caret")
+library(caret)
+
+if (!require("e1071")) install.packages("e1071")
+library(e1071)
+
+if (!require("doParallel")) install.packages("doParallel")
+library(doParallel)
+
+#need to install GBM directly from Greg Ridgeway's Github to avoid memory leakage problem in GBM in Cran package (for this problem after 350 iterations)
+if (!require("devtools")) install.packages("devtools")
+library("devtools")
+
+install_github("harrysouthworth/gbm")
+
+# Data
+training_set <- read.table(file.path("Kaggle_Covertype_training.csv"),sep = ",", header = T)
+testing_set <- read.table(file.path("Kaggle_Covertype_test.csv"),sep = ",", header = T)
+id_testing <- testing_set$id
+training_set <- training_set[,-1]
+testing_set  <- testing_set[,-1]
+
+#####FEATURE EXTRACTION
+
+###shift vertical
+training_set$vertDistHyd_ElevShift <- (training_set$elevation -training_set$ver_dist_hyd)
+
+#original plot
+plot(training_set$ver_dist_hyd~training_set$elevation,col=as.numeric(training_set$Cover_Type))
+
+#transformed plot, better distinguishes type 1 and 2
+plot(training_set$ver_dist_hyd~training_set$vertDistHyd_ElevShift,col=as.numeric(training_set$Cover_Type))
+
+###shift horizontal, need to optimize shift as horizontal not as easy as vertical, 
+###optimize by minimizing skewness of class 1 and class 2
+
+#create shift sequence and matrix to record skew with each level of shift
+pctShift <- seq(0.1,0.9,0.01)
+skewMat <- matrix(0,2,length(pctShift))
+skewMat[1,] <- pctShift
+
+#n <- 1
+
+#loop through each shift
+for (n in 1:length(pctShift)){
+  
+  #grab specific value in shift sequence
+  pct <- pctShift[n]
+  
+  #grab two separate vectors of Class 1 and Class 2 horizontally shifted elevation using the percent shift
+  training_set$horDistHyd_ElevShift <- (training_set$elevation -training_set$hor_dist_hyd*pct)
+  class1 <- training_set[training_set$Cover_Type==1,]
+  class2 <- training_set[training_set$Cover_Type==2,]
+  
+  #measure skew of each class, now shifted by the iterating percent shift
+  skew1 <- skewness(class1$horDistHyd_ElevShift)
+  skew2 <- skewness(class2$horDistHyd_ElevShift)
+  
+  #record total skew (absolute unneeded for this dataset, but would be needed
+  #generally for this approach as negative and positive skew both suboptimal)
+  totSkew <- abs(skew1) + abs(skew2)
+  skewMat[2,n] <- totSkew
+  
+}
+
+#####
+#0.6 skew wins by inspecting skewMat
+#skewMat
+#####
+
+#Create horizontally shifted elevation variable with optimized percent
+training_set$horDistHyd_ElevShift <- (training_set$elevation -training_set$hor_dist_hyd*0.6)
+plot(training_set$hor_dist_hyd~training_set$elevation,col=as.numeric(training_set$Cover_Type))
+plot(training_set$hor_dist_hyd~training_set$horDistHyd_ElevShift,col=as.numeric(training_set$Cover_Type))
+
+#add binary variable for horizontal hydro distance = 0
+training_set$zeroHydDist<-0
+training_set$zeroHydDist[training_set$hor_dist_hyd==0]<-1
+
+#add binary variable for those sites with shade (darkness) at 3pm
+training_set$shade3pm<-0
+training_set$shade3pm[training_set$hill_3pm==0]<-1
+
+#combine vertical and horizontal values
+training_set$crowFliesHyd <- (training_set$hor_dist_hyd^2+training_set$ver_dist_hyd^2)^0.5
+
+#specific variable that quantifies ability to put out fire if one starts
+#to be aligned with pine trees that have higher chance of fire
+training_set$fire_risk <- training_set$crowFliesHyd * training_set$hor_dist_fire
+
+
+#####NOW TRANFORM TEST
+###shift vertical
+testing_set$vertDistHyd_ElevShift <- (testing_set$elevation -testing_set$ver_dist_hyd)
+testing_set$horDistHyd_ElevShift <- (testing_set$elevation -testing_set$hor_dist_hyd*0.6)
+testing_set$zeroHydDist<-0
+testing_set$zeroHydDist[testing_set$hor_dist_hyd==0]<-1
+testing_set$shade3pm<-0
+testing_set$shade3pm[testing_set$hill_3pm==0]<-1
+testing_set$crowFliesHyd <- (testing_set$hor_dist_hyd^2+testing_set$ver_dist_hyd^2)^0.5
+testing_set$fire_risk <- testing_set$crowFliesHyd * testing_set$hor_dist_fire
+
+#combine sets to be used for preprocessing
+all <- rbind(training_set,testing_set)
+
+#create preprocessing model utilizing data in test and training set
+conVarianza <- apply(training_set, 2, function(x) sd(x) != 0)
+conVarianza <- names(conVarianza[conVarianza==T])
+training_set <- training_set[, conVarianza]
+testing_set  <- testing_set[, conVarianza[1:(length(conVarianza))]]
+preprocesamiento <- preProcess(all[,-ncol(all)],method = c("center", "scale"))
+
+#preprocess training set with full model
+training_set <- data.frame(predict(preprocesamiento, training_set[,-ncol(training_set)]),Cover_Type = as.factor(covertype))
+
+#write.csv(training_set,"training_set_mar12.csv")
+training_set <- read.csv("training_set_mar12.csv")
+
+#Switch integer response factors to alphanumeric starting with letter, as per GBM requirements
+training_set$Cover_Type = as.character(training_set$Cover_Type)
+training_set$Cover_Type[training_set$Cover_Type == "1"] <- "Seg1"
+training_set$Cover_Type[training_set$Cover_Type == "2"] <- "Seg2"
+training_set$Cover_Type[training_set$Cover_Type == "3"] <- "Seg3"
+training_set$Cover_Type[training_set$Cover_Type == "4"] <- "Seg4"
+training_set$Cover_Type[training_set$Cover_Type == "5"] <- "Seg5"
+training_set$Cover_Type[training_set$Cover_Type == "6"] <- "Seg6"
+training_set$Cover_Type[training_set$Cover_Type == "7"] <- "Seg7"
+training_set$Cover_Type = as.factor(training_set$Cover_Type)
+
+#use paranmeter grid
+Grid <-  expand.grid(
+  n.trees = c(250,500,750),
+  interaction.depth = c(4,6,8) ,
+  shrinkage = 0.1)
+
+
+#seed
+set.seed(4321)
+
+#define clusters
+cl <- makeCluster(detectCores())
+registerDoParallel(cl)
+
+#define cross validation
+fitControl <- trainControl(method = "cv",
+                           number = 3,
+                           verboseIter = TRUE,
+                           classProbs = TRUE)
+
+#train GBMmodel
+GBMmodel <- train(Cover_Type ~ .,
+                  data = training_set,
+                  method = "gbm",
+                  trControl = fitControl,
+                  verbose = TRUE,
+                  tuneGrid = Grid,
+                  metric = "Accuracy")
+
+#predict training from model
+GBMpredTrain = predict(GBMmodel, newdata = training_set)
+
+#observe metrics
+confusionMatrix(GBMpredTrain, training_set$Cover_Type)
+
+#predict testing from model
+predicciones <- predict(GBMmodel, predict(preprocesamiento, testing_set))
+
+stopCluster(cl)
+
+#create submission
+salida <- data.frame(id =  id_testing, Cover_Type = predicciones)
+write.table(salida, "predicciones.csv", sep = ",", row.names = FALSE, quote = FALSE)
