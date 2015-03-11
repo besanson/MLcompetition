@@ -12,9 +12,8 @@ Team members:
 NN,GBM,DL)  
 
 10/10 Third meeting: We decided to:  
-
 1) Use the following methods SVM, GBM and RF.   
 2) Add new features.  
 3) The output would be:    
-    *Report written in RMD telling: i) Introduction ii) Description on the data iii) Methods iv) Result v) Conclusion.   
-    *Powerpoint Presentation on the Feature Creation.  
+    -*Report written in RMD telling: i) Introduction ii) Description on the data iii) Methods iv) Result v) Conclusion.   
+    -*Powerpoint Presentation on the Feature Creation.  
