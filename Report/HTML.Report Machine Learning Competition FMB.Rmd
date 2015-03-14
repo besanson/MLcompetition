@@ -1,6 +1,6 @@
 ---
 title: "Machine Learning Competition: Report on Forest Cover Type Prediction"
-author: "Fernandez, Mar√≠a, McIver, Jordan, Besanson, Gaston"
+author: "Fernandez, Mari≠a, McIver, Jordan, Besanson, Gaston"
 output: html_document
 ---
 
@@ -15,9 +15,7 @@ IDEAS?
 
 # Pre-Processing
 
-We wanted to try reducing dimensiality in order to decrees the run-time of our different classification models. However, the loos of variance would mean decreasing the models performance. We study the three main methods use in PCA with the linear, polynomial and radial transformation of the data. The following graph shows the portion of explained variance as we take more principal components. We can see that the only method we could "plantearnos" would be the poplynomial transformation, since the other methods don't reduce well the dimensionality. 
-We knew reducing the dimensionality of the data
-
+We wanted to try reducing dimensiality in order to decrees the run-time of our different classification models. However, the loos of variance would mean decreasing the models performance. We study the three main methods use in PCA with the linear, polynomial and radial transformation of the data. The following graph shows the portion of explained variance as we take more principal components. We can see that the only method we could consider would be the poplynomial transformation, since the other methods don't reduce well the dimensionality. 
 
 ```{r, fig.width = 7, fig.height = 3, fig.cap = "PCA"}
 library(ggplot2)
@@ -29,7 +27,17 @@ ggplot(PCA ,aes(x=PC,y=Variance,colour=Method))+geom_line()+theme_bw()+
 
 ```
 
+Creating the vectors with the polynomial transformation may capture the variance, but will it help explain the Cover Type of our data? For a "sanety check" we test the new principal components vectors with the SVM method of classification. As we can see in the following graph to get a similar performance in the training error with the PCA we would need 30 components, and even then the classification is not stabel. So from this PCA study we decide to proceed without using PCA.
 
+```{r, fig.width = 7, fig.height = 3, fig.cap = "PCA"}
+library(ggplot2)
+setwd("~/Documents/Box Sync/Current/Machine Learning/MLcompetition")
+PCA.error<-read.table("Data/tables/PCA_error.csv",sep=";")
+
+ggplot(PCA.error,aes(x=PC,y=error,colour=type))+geom_line()+theme_bw()+
+  scale_x_continuous(breaks=seq(0,30,5))
+
+```
 
 
 
