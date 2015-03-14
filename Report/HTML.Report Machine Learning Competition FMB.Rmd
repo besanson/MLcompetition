@@ -4,22 +4,66 @@ author: "Fernandez, Mari­a, McIver, Jordan, Besanson, Gaston"
 output: html_document
 ---
 
+```{r}
+setwd("~/Documents/Box Sync/Current/Machine Learning/MLcompetition")
+library(ggplot2)
+library(scatterplot3d)
+
+Colours.tree<-c("#d53e4f","#fc8d59","#fee08b","#ffffbf","#e6f598","#99d594","#3288bd")
+
+
+```
 # Introduction
 
 \newthought{This report} has the purpose to explain our experience on the Forest Cover Type Prediction's Competition.^[https://inclass.kaggle.com/c/prediction-of-a-forest-covertype] This experience starts with `Data exploration and Feature Creation`, `Pre-Processing`, `Machine Learning Methods`, `Results over this dataset`, `Conclusion`.
 
 # Data Description^[The Feature creation is explained in the attached powerpoint presentation.]
 
+The data in this analisis consists of 54 attributes and 50.000 observations for the training and 100.000 observations for the competition. The attributes with wich we may classify the type of tree are 10 quantitative data, 4 binary wilderness areas and 40 binary soil type variables. The trees are classify in 7 types.
+
+One of the first things noticed is that the portion of trees are very irregular depending on the category of tree. The following graph shows the portions of each type of tree.
+
+```{r}
+setwd("~/Documents/Box Sync/Current/Machine Learning/MLcompetition")
+
+training_set <- read.table("Data/Kaggle_Covertype_training.csv", sep = ",", header = T)
+
+
+training_set$Cover_Type_label<-factor(training_set$Cover_Type, levels=c(1,2,3,4,5,6,7),
+                                      labels=c("Spruce","Lodgepole Pine","Ponderosa Pine",
+                                               "Cottonwood/Willow","Aspen",
+                                               "Douglas-fir","Krummholz"))
+
+
+ggplot(training_set, aes(x=Cover_Type_label,fill=Cover_Type_label))+geom_bar()+
+  scale_fill_manual(name="colour",values=Colours.tree)+
+  theme(axis.text.x = element_text(angle=-30),panel.background = element_rect(fill = "white"))+
+  labs(title="Distribution of the type of Trees",x="Type of tree")
+  
+training_set$colour<-rep(0,nrow(training_set))
+for(i in 1:nrow(training_set)){
+  ind<-training_set$Cover_Type[i]
+  training_set$colour[i]<-Colours.tree[ind]
+}
+
+##thinking of doing animated by changin the angle, so it turns 
+with(training_set,scatterplot3d(elevation, hor_dist_fire, hor_dist_road,
+                        color = colour, pch = 20,angle = 70,
+                        col.grid = NULL, col.axis = "grey",))
+
+
+```
+
 how many features. how many classes. Table explaning what is the class more populated. In test and trainning set.
 IDEAS?
 
 # Pre-Processing
 
-We wanted to try reducing dimensiality in order to decrees the run-time of our different classification models. However, the loos of variance would mean decreasing the models performance. We study the three main methods use in PCA with the linear, polynomial and radial transformation of the data. The following graph shows the portion of explained variance as we take more principal components. We can see that the only method we could consider would be the poplynomial transformation, since the other methods don't reduce well the dimensionality. 
+We wanted to try reducing dimensiality in order to decrees the run-time of our different classification models. However, the loss of variance would mean decreasing the models performance. We study the three main methods use in PCA with the linear, polynomial and radial transformation of the data. The following graph shows the portion of explained variance as we take more principal components. We can see that the only method we could consider would be the poplynomial transformation, since the other methods don't reduce well the dimensionality. 
 
 ```{r, fig.width = 7, fig.height = 3, fig.cap = "PCA"}
-library(ggplot2)
 setwd("~/Documents/Box Sync/Current/Machine Learning/MLcompetition")
+
 PCA<-read.table("Data/tables/PCA_Variance.csv",sep=";")
 
 ggplot(PCA ,aes(x=PC,y=Variance,colour=Method))+geom_line()+theme_bw()+
@@ -30,8 +74,8 @@ ggplot(PCA ,aes(x=PC,y=Variance,colour=Method))+geom_line()+theme_bw()+
 Creating the vectors with the polynomial transformation may capture the variance, but will it help explain the Cover Type of our data? For a "sanety check" we test the new principal components vectors with the SVM method of classification. As we can see in the following graph to get a similar performance in the training error with the PCA we would need 30 components, and even then the classification is not stabel. So from this PCA study we decide to proceed without using PCA.
 
 ```{r, fig.width = 7, fig.height = 3, fig.cap = "PCA"}
-library(ggplot2)
 setwd("~/Documents/Box Sync/Current/Machine Learning/MLcompetition")
+
 PCA.error<-read.table("Data/tables/PCA_error.csv",sep=";")
 
 ggplot(PCA.error,aes(x=PC,y=error,colour=type))+geom_line()+theme_bw()+
