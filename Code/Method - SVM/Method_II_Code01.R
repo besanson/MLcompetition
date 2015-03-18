@@ -73,7 +73,7 @@ n<-nrow(training_set)
 idx <- seq(1:n)
 idx <- idx[sample(1:n)]
 ##shuffel the data
-data<-training_set[idx[1:1000],]
+data<-training_set[idx,]
 
 ##setting the cost per class
 costs <- table(data$Cover_Type)
@@ -97,7 +97,6 @@ Linear_results<- foreach(cost = Linear_costList,.combine=rbind,.packages=c("e107
   Linear_result <- c(cost, Linear_error)
 }
 
-stopCluster(cl)
 
 Linear_results
 
