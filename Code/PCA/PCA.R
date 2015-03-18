@@ -18,9 +18,9 @@
 
 ##-------------------------------------------------------------------------------------------------
 ##Marias directory
-setwd("~/Documents/Box Sync/Current/Machine Learning/MLcompetition")
+#setwd("~/Documents/Box Sync/Current/Machine Learning/MLcompetition")
 
-
+rm(list=ls())
 ## LIBRARIES
 
 # Import packages and functions
@@ -36,39 +36,11 @@ if (!require("doParallel")) install.packages("doParallel")
 
 ##-------------------------------------------------------------------------------------------------
 ##INCLUDE DATA
-rm(list=ls())
+
+source("Code/ReadData.R")
 
 cl <- makeCluster(detectCores()) ## detect the cores in the machine
 
-training_set <- read.table("Data/Kaggle_Covertype_training.csv", sep = ",", header = T)
-testing_set <- read.table("Data/Kaggle_Covertype_test.csv", sep = ",", header = T)
-#testing_trueLabel<-read.table("Data/Kaggle_Covertype_sample.csv", sep=",",header=T)
-id_testing <- testing_set$id  ## keep the id 
-training_set <- training_set[,-1]  ## remove the id column
-testing_set  <- testing_set[,-1]
-
-
-##-------------------------------------------------------------------------------------------------
-## Preprosesing:
-##-------------------------------------------------------------------------------------------------
-
-
-# Looking if all the variables have variability
-conVarianza <- apply(training_set, 2, function(x) sd(x) != 0) #keep only those that have variability
-conVarianza <- names(conVarianza[conVarianza==T])
-
-training_set <- training_set[, conVarianza]
-testing_set  <- testing_set[, conVarianza[1:(length(conVarianza)-1)]]
-
-
-
-# Doing some preprocess, as normalizing in this case
-NormData <- preProcess(rbind(training_set[,-ncol(training_set)], testing_set),
-                       method = c("center", "scale"))
-training_set <- data.frame(predict(NormData,training_set[,-(ncol(training_set))]),
-                           Cover_Type = as.factor(training_set$Cover_Type)) ##labels
-
-testing_set<-predict(NormData,testing_set)
 
 ##-------------------------------------------------------------------------------------------------
 ## PCA
@@ -84,7 +56,7 @@ data<-training_set[idx[1:1500],]
 
 ##training linear kernel function.........................................................
 
-pca.linear<-prcomp(~.,data=data[,1:53])
+pca.linear<-prcomp(~.,data=data[,1:59])
 pca.linear.variance<-pca.linear$sdev^2/sum(pca.linear$sdev^2)
 pca.linear.cum.variance<-pca.linear.variance[1]
 for(i in 2:length(pca.linear.variance)){
