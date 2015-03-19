@@ -39,45 +39,15 @@ rm(list=ls())
 
 cl <- makeCluster(detectCores()) ## detect the cores in the machine
 
-training_set <- read.table("Data/Kaggle_Covertype_training.csv", sep = ",", header = T)
-testing_set <- read.table("Data/Kaggle_Covertype_test.csv", sep = ",", header = T)
-#testing_trueLabel<-read.table("Data/Kaggle_Covertype_sample.csv", sep=",",header=T)
-id_testing <- testing_set$id  ## keep the id 
-training_set <- training_set[,-1]  ## remove the id column
-testing_set  <- testing_set[,-1]
-
-# Looking if all the variables have variability
-conVarianza <- apply(training_set, 2, function(x) sd(x) != 0) #keep only those that have variability
-conVarianza <- names(conVarianza[conVarianza==T])
-
-training_set <- training_set[, conVarianza]
-testing_set  <- testing_set[, conVarianza[1:(length(conVarianza)-1)]]
-
-# Doing some preprocess, as normalizing in this case
-NormData <- preProcess(rbind(training_set[,-ncol(training_set)], testing_set),
-                       method = c("center", "scale"))
-training_set <- data.frame(predict(NormData,training_set[,-(ncol(training_set))]),
-                 Cover_Type = as.factor(training_set$Cover_Type)) ##labels
-
-testing_set<-predict(NormData,testing_set)
+source("Code/ReadData.R")
 
 ##-------------------------------------------------------------------------------------------------
 ##   End of "preparing" the data, now the training beggins
 ##-------------------------------------------------------------------------------------------------
 
-##-------------------------------------------------------------------------------------------------
-##   Doing some test  to see if the code works with only 10000 random observations
 
-n<-nrow(training_set)
-##preparing some data
-idx <- seq(1:n)
-idx <- idx[sample(1:n)]
-##shuffel the data
-data<-training_set[idx,]
+data<-training_set
 
-##setting the cost per class
-costs <- table(data$Cover_Type)
-costs<-1-costs/sum(costs)
 
 ##-------------------------------------------------------------------------------------------------
 ##   Linear Kernel

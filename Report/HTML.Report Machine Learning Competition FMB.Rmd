@@ -25,7 +25,7 @@ plot1
 
 ```
 
-First step before starting to "play" with the data has to scale the variables so they would all be *normalize* 
+First step before starting to "play" with the data has to scale the variables so they would all be *normalize*. We have to destinguish two type of data, the binary and the continous. The first ones should not be included in the normalization.
 
 #are we sure?
 
@@ -52,10 +52,11 @@ with(training_set,scatterplot3d(fire_risk, horDistHyd_ElevShift, crowFliesHyd,
 ```
 
 
+Once we have done all the preparation of the data we have left with 59 variables that we are going to use for in the different classification methods.
+
 # Pre-Processing
 
-
-
+As we created new variables and still are keeping the old ones...
 We wanted to try reducing dimensiality in order to decrees the run-time of our different classification models. However, the loss of variance would mean decreasing the models performance. We study the three main methods use in PCA with the linear, polynomial and radial transformation of the data. The following graph shows the portion of explained variance as we take more principal components. We can see that the only method we could consider would be the poplynomial transformation, since the other methods don't reduce well the dimensionality. 
 
 ```{r, fig.width = 7, fig.height = 3, fig.cap = "PCA"}
