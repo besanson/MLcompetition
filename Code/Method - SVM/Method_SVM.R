@@ -17,6 +17,9 @@
 # Kernel there will be some tuning parameters
 
 ##SVM function works directly with cross validation of 10-fold.
+## the following code tries different parameters to see how the training error variates. 
+## Finally the parameters selected are using radial kernel
+## cost=10, gamma=0.5
 
 ##-------------------------------------------------------------------------------------------------
 ##Marias directory
@@ -41,13 +44,6 @@ cl <- makeCluster(detectCores()) ## detect the cores in the machine
 
 source("Code/ReadData.R")
 
-##-------------------------------------------------------------------------------------------------
-##   End of "preparing" the data, now the training beggins
-##-------------------------------------------------------------------------------------------------
-
-
-data<-training_set
-
 
 ##-------------------------------------------------------------------------------------------------
 ##   Linear Kernel
@@ -60,10 +56,10 @@ Linear_costList<-c(0.001,0.01,0.1,1,5,10,100)
 registerDoParallel(cl)
 
 Linear_results<- foreach(cost = Linear_costList,.combine=rbind,.packages=c("e1071","doMC","caret")) %dopar% {
-  Linear_svm<-svm(Cover_Type~., data=data, kernel="linear", scale=FALSE,
+  Linear_svm<-svm(Cover_Type~., data=training_set, kernel="linear", scale=FALSE,
                   cost=cost)
   Linear_ypredict<-predict(Linear_svm) #predict labels
-  Linear_error<-mean(data$Cover_Type!=Linear_ypredict) #error of Linear
+  Linear_error<-mean(training_set$Cover_Type!=Linear_ypredict) #error of Linear
   Linear_result <- c(cost, Linear_error)
 }
 
@@ -84,39 +80,15 @@ Radial_gammaList<-c(rep(gammaList[1],3),rep(gammaList[2],3),rep(gammaList[3],3))
 
 registerDoParallel(cl)
 Radial_results<- foreach(cost = Radial_costList, gamma=Radial_gammaList, .combine=rbind,.packages=c("e1071","doMC","caret")) %dopar% {
-  Radial_svm<-svm(Cover_Type~.,data=data, kernel="radial", scale=FALSE,
+  Radial_svm<-svm(Cover_Type~.,data=training_set, kernel="radial", scale=FALSE,
                   cost=cost, gamma=gamma)
   Radial_ypredict<-predict(Radial_svm) ##predict labels (best model)
-  Radial_error<-mean(data$Cover_Type!=Radial_ypredict) #error of Linear
+  Radial_error<-mean(training_set$Cover_Type!=Radial_ypredict) #error of Linear
   Radial_result <- c(cost, gamma, Radial_error)
 }
 
 stopCluster(cl)
 Radial_results
-
-##-------------------------------------------------------------------------------------------------
-##   Polynomial Kernel
-##-------------------------------------------------------------------------------------------------
-
-Poly_costList<-c(0.1,1,10)
-degree<-c(2,3,4)
-
-Poly_costList<-rep(Poly_costList,length(degree))
-Poly_degreeList<-c(rep(degree[1],3),rep(degree[2],3),rep(degree[3],3))
-
-Poly_results<- foreach(cost = Poly_costList, degree=Poly_degreeList, .combine=rbind,.packages=c("e1071","doMC","caret")) %dopar% {
-  Poly_svm<-svm(Cover_Type~.,data=data, kernel="polynomial", scale=FALSE,
-                  cost=cost, degree=degree)
-  Poly_ypredict<-predict(Poly_svm) ##predict labels (best model)
-  Poly_error<-mean(data$Cover_Type!=Poly_ypredict) #error of Linear
-  Poly_result <- c(cost, degree, Poly_error)
-}
-
-Poly_results
-
-
-
-stopCluster(cl)
 
 ##  -----------------------------------------------------------------------------
 ## Save the results
