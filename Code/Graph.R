@@ -21,7 +21,7 @@
 ###List of Graphs
 
 ##plot1............... Bar plot of the number of each Type of Trees in our daya
-##
+##plot2............... Line plot with the variance capture by PCA
 
 ##-------------------------------------------------------------------------------------------------
 ##Marias directory
@@ -39,11 +39,12 @@ if (!require("e1071")) install.packages("e1071")
 if (!require("doMC")) install.packages("doMC")
 if (!require("doParallel")) install.packages("doParallel")
 if (!require("scatterplot3d")) install.packages("scatterplot3d")## 3D graphs
+##-------------------------------------------------------------------------------------------------
+##   Data Files
+##-------------------------------------------------------------------------------------------------
 
-## R codes
-
-source("Code/ReadData.R")
-
+source("Code/ReadData.R") ## all variables
+PCA_Var<-read.csv("Data/tables/PCA_Variance.csv",sep=";")
 
 ##-------------------------------------------------------------------------------------------------
 ##   Colours
@@ -80,3 +81,13 @@ for(i in 1:nrow(training_set)){
   ind<-training_set$Cover_Type[i]
   training_set$colour[i]<-Colours.tree[ind]
 }
+
+
+##-------------------------------------------------------------------------------------------------
+##   PCA Explained Variance
+##-------------------------------------------------------------------------------------------------
+
+plot2<-ggplot(PCA_Var,aes(x=PC,y=Variance,colour=Method))+geom_line()+theme_bw()+
+  scale_x_continuous(breaks=seq(1,10,1))+ylab("Explained Variance")
+
+

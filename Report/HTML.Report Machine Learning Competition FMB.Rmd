@@ -57,19 +57,16 @@ Once we have done all the preparation of the data we have left with 59 variables
 # Pre-Processing
 
 As we created new variables and still are keeping the old ones...
-We wanted to try reducing dimensiality in order to decrees the run-time of our different classification models. However, the loss of variance would mean decreasing the models performance. We study the three main methods use in PCA with the linear, polynomial and radial transformation of the data. The following graph shows the portion of explained variance as we take more principal components. We can see that the only method we could consider would be the poplynomial transformation, since the other methods don't reduce well the dimensionality. 
+We wanted to try reducing dimensiality in order to decrees the run-time of our different classification models. However, the loss of variance would mean decreasing the models performance. We study the two main methods use in PCA with the linear and polynomial transformation of the data.
+One of the main things we have to take into account when doing PCA, is the portion of information we loose. As we are trying to minimize the classification errror of our different models, we want to make sure we don't loose any valuable information doing some pre-processing or PCA. The following graph shows the portion of explained variance as we take more principal components. That means the accumulated information that each principal component includes. We should be interested in a transformation that with few principal components includes as maximum of variance as possible. If we take a transformation with less that 90% of the information, that could reduce our classification accurancy.
+
+We can see in the Graph that the only method that keeps most of the variance is the polynomial transformation. 
 
 ```{r, fig.width = 7, fig.height = 3, fig.cap = "PCA"}
-setwd("~/Documents/Box Sync/Current/Machine Learning/MLcompetition")
-
-PCA<-read.table("Data/tables/PCA_Variance.csv",sep=";")
-
-ggplot(PCA ,aes(x=PC,y=Variance,colour=Method))+geom_line()+theme_bw()+
-  scale_x_continuous(breaks=seq(1,10,1))+ylab("Explained Variance")
-
+plot2
 ```
 
-Creating the vectors with the polynomial transformation may capture the variance, but will it help explain the Cover Type of our data? For a "sanety check" we test the new principal components vectors with the SVM method of classification. As we can see in the following graph to get a similar performance in the training error with the PCA we would need 30 components, and even then the classification is not stabel. So from this PCA study we decide to proceed without using PCA.
+Creating the vectors with the polynomial transformation may capture 90% of the information, but will it help explain the Cover Type of our data? To see how much the missclassification error might increase we check with SVM method the difference in accurancy. The following graph shows firstly the error with SVM with all training data. On the other hand, it shows how the classifation error decreases as we include a new principal component. As we can see in the following graph to get a similar performance in the training error with the PCA we would need 30 components, and even then the classification is not stabel. So from this PCA study we decide to proceed without using PCA.
 
 ```{r, fig.width = 7, fig.height = 3, fig.cap = "PCA"}
 setwd("~/Documents/Box Sync/Current/Machine Learning/MLcompetition")

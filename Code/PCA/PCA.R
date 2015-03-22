@@ -18,7 +18,7 @@
 
 ##-------------------------------------------------------------------------------------------------
 ##Marias directory
-#setwd("~/Documents/Box Sync/Current/Machine Learning/MLcompetition")
+setwd("~/Documents/Box Sync/Current/Machine Learning/MLcompetition")
 
 rm(list=ls())
 ## LIBRARIES
@@ -52,11 +52,11 @@ n<-nrow(training_set)
 idx <- seq(1:n)
 idx <- idx[sample(1:n)]
 ##shuffel the data
-data<-training_set[idx[1:1500],]
+data<-training_set[idx[1:15000],] ## PCA analysis can't study the 50000 points, so we just take a subset
 
 ##training linear kernel function.........................................................
 
-pca.linear<-prcomp(~.,data=data[,1:59])
+pca.linear<-prcomp(~.,data=data[,-ncol(data)])
 pca.linear.variance<-pca.linear$sdev^2/sum(pca.linear$sdev^2)
 pca.linear.cum.variance<-pca.linear.variance[1]
 for(i in 2:length(pca.linear.variance)){
@@ -66,21 +66,15 @@ for(i in 2:length(pca.linear.variance)){
 
 ##training polynomial kernel function....................................................
 
-pca.poly<-kpca(~.,data=data[,1:53],kernel="polydot",kpar=list(degree=2)) 
+pca.poly<-kpca(~.,data=data[,-ncol(data)],kernel="polydot",kpar=list(degree=2)) 
 pca.poly.variance<-as.numeric(eig(pca.poly)/sum(eig(pca.poly)))
 pca.poly.cum.variance<-pca.poly.variance[1]
 for(i in 2:length(pca.poly.variance)){
   pca.poly.cum.variance[i]<-pca.poly.variance[i]+pca.poly.cum.variance[i-1]
 }
 
-##training  radial kernel function.......................................................
 
-pca.radial<-kpca(~.,data=data[,1:53],kernel="rbfdot",kpar=list(sigma=0.1)) 
-pca.radial.variance<-as.numeric(eig(pca.radial)/sum(eig(pca.radial)))
-pca.radial.cum.variance<-pca.radial.variance[1]
-for(i in 2:length(pca.radial.variance)){
-  pca.radial.cum.variance[i]<-pca.radial.variance[i]+pca.radial.cum.variance[i-1]
-}
+
 
 ##-------------------------------------------------------------------------------------------------
 ## Results
@@ -90,10 +84,10 @@ for(i in 2:length(pca.radial.variance)){
 ## 1. plot the variance explained by the tree methods
 ##-------------------------------------------------------------------------------------------------
 
-exp.variance<-c(pca.linear.cum.variance[1:10],pca.poly.cum.variance[1:10],pca.radial.cum.variance[1:10])
-exp.variance<-cbind(rep(seq(1,10,1),3),exp.variance)
+exp.variance<-c(pca.linear.cum.variance[1:10],pca.poly.cum.variance[1:10])
+exp.variance<-cbind(rep(seq(1,10,1),2),exp.variance)
 exp.variance<-as.data.frame(exp.variance)
-exp.variance$type<-c(rep("linear",10),rep("polynomial",10),rep("radial",10))
+exp.variance$type<-c(rep("linear",10),rep("polynomial",10))
 colnames(exp.variance)<-c("PC","Variance","Method")
 exp.variance$PC<-as.integer(exp.variance$PC)
 
@@ -114,7 +108,6 @@ dev.off()
 ## 2. Plot the error using SVM in all the data and with PCA of polynomial
 ##-------------------------------------------------------------------------------------------------
 
-
 error<-c()
 for(i in 1:30){ ## loop to see the evolution of the training error, as we include more PC
   vectors<-pcv(pca.poly)[,1:i]
@@ -124,8 +117,10 @@ for(i in 1:30){ ## loop to see the evolution of the training error, as we includ
   error[i]<-error(svm.poly)
 }
 
-svm<-ksvm(Cover_Type~.,data=data,kernel="rbfdot",C=2,scale=FALSE) ## error of SVM with 53 variables
-error.svm<-error(svm)
+svm<-svm(Cover_Type~.,data=data, kernel="radial", scale=FALSE,
+    cost=10, gamma=0.5)
+Radial_ypredict<-predict(svm) 
+error.svm<-mean(data$Cover_Type!=Radial_ypredict)
 
 error<-cbind(seq(1,30,1),error)
 error.svm<-(cbind(seq(1,30,1),rep(error.svm,30)))
