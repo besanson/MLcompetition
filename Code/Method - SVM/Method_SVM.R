@@ -34,27 +34,9 @@ loadPackages(c("caret", "e1071","doParallel"))
 ##-------------------------------------------------------------------------------------------------
 rm(list=ls())
 
-cl <- makeCluster(detectCores()) ## detect the cores in the machine
 
 source("Code/ReadData.R")
-
-##-------------------------------------------------------------------------------------------------
-##   Linear Kernel
-##-------------------------------------------------------------------------------------------------
-
-set.seed(4321)
-
-
-Linear_costList<-c(0.001,0.01,0.1,1,5,10,100)
-registerDoParallel(cl)
-
-Linear_results<- foreach(cost = Linear_costList,.combine=rbind,.packages=c("e1071","doMC","caret")) %dopar% {
-  Linear_svm<-svm(Cover_Type~., data=training_set, kernel="linear", scale=FALSE,
-                  cost=cost)
-  Linear_ypredict<-predict(Linear_svm) #predict labels
-  Linear_error<-mean(training_set$Cover_Type!=Linear_ypredict) #error of Linear
-  Linear_result <- c(cost, Linear_error)
-}
+cl <- makeCluster(detectCores()-1) ## detect the cores in the machine
 
 
 ##-------------------------------------------------------------------------------------------------
@@ -80,6 +62,8 @@ Radial_results<- foreach(cost = Radial_costList, gamma=Radial_gammaList, .combin
 
 stopCluster(cl)
 
+Radial_results<-as.data.frame(Radial_results)
+colnames(Radial_results)<-c("cost","gamma","error")
 
 #Predictions with the selected parameters
 

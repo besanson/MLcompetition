@@ -27,7 +27,7 @@ loadPackages(c("h2o","doParallel"))
 ##INCLUDE DATA
 ##-------------------------------------------------------------------------------------------------
 rm(list=ls())
-cl <- makeCluster(detectCores()) ## detect the cores in the machine
+cl <- makeCluster(detectCores()-1) ## detect the cores in the machine
 source("Code/ReadData.R") ## all variables
 
 
