@@ -88,6 +88,18 @@ density<-ggplot(DensityData,aes(x=slope,fill=factor(data))) +
 rm(BoxplotData)
 rm(DensityData)
 
+##Export Results:     ----- . ----- . ----- . ----- . ----- . ----- . ----- .
+png(filename="Report/Graphs/densityboxplot.png",width = 1200, height = 700)
+grid.newpage() # Open a new page on grid device
+pushViewport(viewport(layout = grid.layout(2, 5)))
+print(box.plot1, vp = viewport(layout.pos.row = 1:2, layout.pos.col = 1:2)) 
+print(density, vp = viewport(layout.pos.row = 1:2, layout.pos.col = 3:5))
+dev.off()
+## End of Exporting   ----- . ----- . ----- . ----- . ----- . ----- . ----- .
+
+
+
+
 ##-------------------------------------------------------------------------------------------------
 ##   Type of Trees Graph
 ##-------------------------------------------------------------------------------------------------
@@ -100,10 +112,13 @@ training_set$Cover_Type_label<-factor(training_set$Cover_Type, levels=c(1,2,3,4,
 
 
 ##Export Results:     ----- . ----- . ----- . ----- . ----- . ----- . ----- .
-plot1<-ggplot(training_set, aes(x=Cover_Type_label,fill=Cover_Type_label))+geom_bar()+
+png(filename="Report/Graphs/densityboxplot.png",width = 1200, height = 700)
+ggplot(training_set, aes(x=Cover_Type_label,fill=Cover_Type_label))+geom_bar()+
   scale_fill_manual(name="colour",values=Colours.tree)+
   theme(axis.text.x = element_text(angle=-30),panel.background = element_rect(fill = "white"))+
-  labs(title="Distribution of the type of Trees",x="Type of tree") 
+  labs(title="Distribution of the type of Trees",x="Type of tree")
+dev.off()
+
 ## End of Exporting   ----- . ----- . ----- . ----- . ----- . ----- . ----- .
 
 
