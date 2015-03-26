@@ -25,7 +25,7 @@
 
 ##-------------------------------------------------------------------------------------------------
 ##Marias directory
-##setwd("~/Documents/Box Sync/Current/Machine Learning/MLcompetition")
+setwd("~/Documents/Box Sync/Current/Machine Learning/MLcompetition")
 
 rm(list=ls())
 
