@@ -22,11 +22,9 @@
 ## cost=10, gamma=0.5
 
 ##-------------------------------------------------------------------------------------------------
-##Marias directory
-setwd("~/Documents/Box Sync/Current/Machine Learning/MLcompetition")
-
-
 ## LIBRARIES
+##-------------------------------------------------------------------------------------------------
+
 
 # Import packages and functions
 ##Packages that are used in this code
@@ -38,12 +36,12 @@ if (!require("doParallel")) install.packages("doParallel")
 
 ##-------------------------------------------------------------------------------------------------
 ##INCLUDE DATA
+##-------------------------------------------------------------------------------------------------
 rm(list=ls())
 
 cl <- makeCluster(detectCores()) ## detect the cores in the machine
 
 source("Code/ReadData.R")
-
 
 ##-------------------------------------------------------------------------------------------------
 ##   Linear Kernel
@@ -63,8 +61,6 @@ Linear_results<- foreach(cost = Linear_costList,.combine=rbind,.packages=c("e107
   Linear_result <- c(cost, Linear_error)
 }
 
-
-Linear_results
 
 ##-------------------------------------------------------------------------------------------------
 ##   Radial Kernel
@@ -88,15 +84,20 @@ Radial_results<- foreach(cost = Radial_costList, gamma=Radial_gammaList, .combin
 }
 
 stopCluster(cl)
-Radial_results
+
+
+#Predictions with the selected parameters
+
+Radial_svm<-svm(Cover_Type~.,data=training_set, kernel="radial", scale=FALSE,
+                cost=10, gamma=0.5)
+Radial_ypredict<-predict(Radial_svm,testing_set)
+
 
 ##  -----------------------------------------------------------------------------
 ## Save the results
 ##  -----------------------------------------------------------------------------
-
-write.table(Radial_results, "Radial_Results.csv", sep = ",", row.names = FALSE, quote = FALSE)
-write.table(Linear_results, "Linear_Results.csv", sep = ",", row.names = FALSE, quote = FALSE)
-
+output <- data.frame(id =  id_testing, Cover_Type = Radial_ypredict)
+write.table(output, "Code/Prediction/Pred_Alessio_SVM.csv", sep = ",", row.names = FALSE, quote = FALSE)
 
 ##  -----------------------------------------------------------------------------
 
