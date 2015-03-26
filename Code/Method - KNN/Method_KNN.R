@@ -3,15 +3,15 @@
 ##-------------------------------------------------------------------------------------------------
 
 ##DESCRIPTION:
-#  this code is going to study the classification throught KNN method
+#  this code is going to classify using the KNN method
 
 
 ## USEFULL LINKS:
 ## https://stat.ethz.ch/R-manual/R-devel/library/class/html/knn.html
 
 ## GENERAL INFO:
-# We are going to use similar code that used in the seminar classes. Using parallel to find the best
-# option of k
+# We are going to use similar code that was used in the seminar classes, 
+# using parallel to find the best value of k
 
 ##-------------------------------------------------------------------------------------------------
 ## LIBRARIES
@@ -22,21 +22,22 @@ source("Code/Packages.R")
 loadPackages(c("class","doSNOW","doParallel","dplyr","foreach"))
 
 ##-------------------------------------------------------------------------------------------------
-##INCLUDE DATA
+
+# Clear environment
 rm(list=ls())
 
-
+##INCLUDE DATA
 source("Code/ReadData.R")
 
 ##-------------------------------------------------------------------------------------------------
-##   End of "preparing" the data, now the training beggins
+##   Training of data
 ##-------------------------------------------------------------------------------------------------
 
 data<-training_set[,-ncol(training_set)]
 data$Y<-training_set[,ncol(training_set)]
 
 ##-------------------------------------------------------------------------------------------------
-##   KNN
+##   KNN method implementation
 ##-------------------------------------------------------------------------------------------------
 
 set.seed(4321)
@@ -46,35 +47,34 @@ noCores <- makeCluster(detectCores()-1) ## detect the cores in the machine
 noObs<-nrow(data)
 ks<-c(1,2,3) # different options of k
 
-# bucket indicator
+# Bucket indicator
 noBuckets <- 10 ## 10 for cross validation of 10 buckets
 idx <- rep(1:noBuckets, each=ceiling(noObs/noBuckets))  
-# each bucket of size 600
+# Each bucket is of size 600
 
-# you never know how the data was constructed, so we randomize the buckets
-# just in case
+# You never know how the data was constructed, 
+# so we randomize the buckets just in case
 idx <- idx[sample(1:noObs)]
 idx <- idx[1:noObs]  # if it is an odd number
 
-# adding the variable
+# Adding the bucket variable
 data <- data %>% mutate(bucketId=idx)
 
 # Running in parallel
-
 bucketList <- rep(1:noBuckets, length(ks))
 kList <- rep(ks, noBuckets)
 
 registerDoSNOW(noCores)
 
-system.time(
-  results<- foreach(bucket = bucketList, k = kList, 
+# Evaluate test error
+results<- foreach(bucket = bucketList, k = kList, 
                     .combine=rbind, .packages=c("class", "dplyr")) %dopar% {
                                          
-                      # subsetting the training phase data
+                      # Subset training phase data
                       Xtrain <- data %>% filter(bucketId != bucket) %>% select(-bucket, -Y)
                       Ytrain <- data %>% filter(bucketId != bucket) %>% select(Y)
                       
-                      # subsetting the test phase data
+                      # Subset test phase data
                       Xtest <- data %>% filter(bucketId == bucket) %>% select(-bucket, -Y)
                       Ytest <- data %>% filter(bucketId == bucket) %>% select(Y)
                       
@@ -82,20 +82,17 @@ system.time(
                       testPredictions <- knn(train=Xtrain, test=Xtest, cl=Ytrain$Y, k=k)
                       testError <- mean(testPredictions != Ytest$Y)
                       
-                      # last thing is returned
+                      # Return results
                       result <- c(bucket, k, testError)
                     }
-)
 
 stopCluster(noCores)
 
-
-# get the CV error
+# Get the CV error
 colnames(results) <- c("testBucket", "k", "Error")
 error<-as.data.frame(results) %>% group_by(k) %>% summarize(cvError=mean(Error))
 
-#error with 1KK is the smaller, although it doesn't peform to good
-
+# Error with 1KK is the smaller, although it doesn't peform to good
 ##  -----------------------------------------------------------------------------
 ## Save the results with k=1
 ##  -----------------------------------------------------------------------------
@@ -116,4 +113,3 @@ output <- data.frame(id =  id_testing, Cover_Type = KNN_results)
 write.table(output, "Code/Prediction/Pred_Alessio_KNN.csv", sep = ",", row.names = FALSE, quote = FALSE)
 
 
-##  -----------------------------------------------------------------------------
