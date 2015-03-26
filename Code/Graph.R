@@ -154,27 +154,17 @@ for(i in 1:nrow(training_set)){
 }
 
 
-with(training_set,scatterplot3d(elevation, hor_dist_fire, hor_dist_road,
-                                color = colour, pch = 20,angle = 70, 
-                                col.grid = NULL, col.axis = "grey"))
+#with(training_set,scatterplot3d(elevation, hor_dist_fire, hor_dist_road,
+ #                               color = colour, pch = 20,angle = 70, 
+  #                              col.grid = NULL, col.axis = "grey"))
 
 
 
-with(training_set,scatterplot3d(fire_risk, horDistHyd_ElevShift, crowFliesHyd,
-                                color = colour, pch = 20,angle = 70, 
-                                col.grid = NULL, col.axis = "grey"))
+#with(training_set,scatterplot3d(fire_risk, horDistHyd_ElevShift, crowFliesHyd,
+ #                               color = colour, pch = 20,angle = 70, 
+  #                              col.grid = NULL, col.axis = "grey"))
 
-with(training_set,scatterplot3d(vertDistHyd_ElevShift, ver_dist_hyd, crowFliesHyd,
-                                color = colour, pch = 20,angle = 70, 
-                                col.grid = NULL, col.axis = "grey"))
-
-with(training_set,scatterplot3d(elevation, hor_dist_hyd, crowFliesHyd,
-                                color = colour, pch = 20,angle = 70, 
-                                col.grid = NULL, col.axis = "grey"))
-
-with(training_set,scatterplot3d(fire_risk,horDistHyd_ElevShift, hor_dist_hyd,
-                                color = colour, pch = 20,angle = 70, 
-                                col.grid = NULL, col.axis = "grey"))
+## Decided not to include them in the report
 
 
 ##-------------------------------------------------------------------------------------------------
