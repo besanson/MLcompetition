@@ -14,12 +14,15 @@
 ## GENERAL INFO:
 # SVM depends on the method we choose the Kernel function to be in. We will have to choose 
 # some different methods and see which one is best in this data set. Depending on the kind of 
-# Kernel there will be some tuning parameters
+# Kernel there will be different tuning parameters.
 
 ##SVM function works directly with cross validation of 10-fold.
 ## the following code tries different parameters to see how the training error variates. 
 ## Finally the parameters selected are using radial kernel
 ## cost=10, gamma=0.5
+
+# Clear environment
+rm(list=ls())
 
 ##-------------------------------------------------------------------------------------------------
 ## LIBRARIES
@@ -32,8 +35,6 @@ loadPackages(c("caret", "e1071","doParallel"))
 ##-------------------------------------------------------------------------------------------------
 ##INCLUDE DATA
 ##-------------------------------------------------------------------------------------------------
-rm(list=ls())
-
 
 source("Code/ReadData.R")
 cl <- makeCluster(detectCores()-1) ## detect the cores in the machine
@@ -43,15 +44,18 @@ cl <- makeCluster(detectCores()-1) ## detect the cores in the machine
 ##   Radial Kernel
 ##-------------------------------------------------------------------------------------------------
 
-
+# Choosing cost and gamma paramaters we are going to test
 Radial_costList<-c(0.1,1,10)
 gammaList<-c(0.5,1,2)
 
+# Transform for use in parallel
 Radial_costList<-rep(Radial_costList,length(gammaList))
 Radial_gammaList<-c(rep(gammaList[1],3),rep(gammaList[2],3),rep(gammaList[3],3))
 
-
+# Register cluster
 registerDoParallel(cl)
+
+# Function to produce error of SVM utilizing parameter grid
 Radial_results<- foreach(cost = Radial_costList, gamma=Radial_gammaList, .combine=rbind,.packages=c("e1071","doMC","caret")) %dopar% {
   Radial_svm<-svm(Cover_Type~.,data=training_set, kernel="radial", scale=FALSE,
                   cost=cost, gamma=gamma)
@@ -65,8 +69,7 @@ stopCluster(cl)
 Radial_results<-as.data.frame(Radial_results)
 colnames(Radial_results)<-c("cost","gamma","error")
 
-#Predictions with the selected parameters
-
+# Predictions with the selected parameters
 Radial_svm<-svm(Cover_Type~.,data=training_set, kernel="radial", scale=FALSE,
                 cost=10, gamma=0.5)
 Radial_ypredict<-predict(Radial_svm,testing_set)
