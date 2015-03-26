@@ -1,24 +1,41 @@
 ---
-title: "Machine Learning Competition: Report on Forest Cover Type Prediction"
-author: "Fernandez, Mari�a, McIver, Jordan, Besanson, Gaston"
+title: 'Machine Learning Competition: Report on Forest Cover Type Prediction'
+author: "Fernandez, María, McIver, Jordan, Besanson, Gaston"
 output: html_document
 ---
 
 ```{r,echo=FALSE, message=FALSE}
-setwd("~/Documents/Box Sync/Current/Machine Learning/MLcompetition")
+
+setwd("C:/Users/DON/Dropbox/ML Competition/MLcompetition")
 source("Code/Graph.R")## the Graphs will be written in the Graph code, so here we only have to call them
 ```
 # Introduction
 
 \newthought{This report} has the purpose to explain our experience on the Forest Cover Type Prediction's Competition.^[https://inclass.kaggle.com/c/prediction-of-a-forest-covertype] This experience starts with `Data exploration and Feature Creation`, `Pre-Processing`, `Machine Learning Methods`, `Results over this dataset`, `Conclusion`.
 
-Our main objetive for this project was to predicte as best as possible the type of tree in a region with the purpose of minimizing the fires. For this purpose we had to take into account two possible scenarios. The first would be, that all trees are equally important. So the main objective is to predict well the maximum trees possible. The second scenario would be the importance of misclassifying a concrete tree. For example, misclassifying very flamable tree would have much worse consecuences in preventing a fire. With this two escenarios we will try to predict the type of tree in our Data taking into consideration the different cost of missclassification.
+Our main objetive for this project was to predicte as best as possible the type of tree in a region with the purpose of minimizing the fires. Even though that we used the same loss for each type of missclassification -in other words, all trees are equally important-, we decided to create new features^[The recommended approach would be consider penalizing more the missclassification of very flamable trees]. **This feature is explained in detailed in the attached powerpoint presentation**.
 
-# Data Description^[The Feature creation is explained in the attached powerpoint presentation.]
+# Data Description
 
-The data used in this report consists of 54 attributes and 50.000 observations for the training and 100.000 observations for the competition. The attributes with which we may classify the type of tree are 10 quantitative data, 4 binary wilderness areas and 40 binary soil type variables. The trees are classify in 7 different types.
+The dataset used in this report consists of 54 attributes (or features) and 50.000 observations for the training (plus one class attribute) and 100.000 observations for the competition.
+The attributes are
 
-One of the first things we wanted to check is that our training-set was representative enought of the testing data. For that we checked that the training and sample set where equally distributed for all variables. After checking the means and quantiles of the data we saw that the distributions where very similar betweeen the two data sets. That should ensure that the model in the training set performs as good as the testing set. To show visualy the results the following boxplot shows the similarity of elevation of the two data sets. Also a density plot of the splope shows that the two data sets are equally distributed, and therefore our training set is representative of all the data.
+* 10 quantitative data:  
+  • Elevation in range 1859–3858 (m).
+  • Aspect (azimuth from true north) in range 0–360 (azimuth).
+  • Slope in range 0–66 (◦).
+  • Horizontal Distance To Hydrology in range 0–1397 (m).
+  • Vertical Distance To Hydrology in range −173–601 (m).
+  • Horizontal Distance To Roadways in range 0–7117 (m).
+  • Hillshade 9 a.m. in range 0–255 (index).
+  • Hillshade Noon in range 0–255 (index).
+  • Hillshade 3 p.m. in range 0–255 (index).
+  • Horizontal Distance To Fire Points in range 0–7173 (m).
+*  4 binary wilderness areas and 40 binary soil type variables.
+
+The trees are classify in 7 different types: 
+
+First, we checked that our training set was representative enought of the testing data.  The means and quantiles of each feature  where very similar betweeen the two data sets. That gave us a hint, that the model in the training set performs as good as the testing set; *dismissing our initial concerns of overfitting*. The following boxplot shows the similarity of `Elevation` of the two data sets. Besides, a density plot of the `Slope` shows that the two data sets are equally distributed. **QUOTE SAYING THAT THESE ARE THE MOST IMPORTANT ONES. and therefore our training set is good proxy**
 
 ```{r,echo=FALSE}
 
@@ -79,7 +96,7 @@ plot2
 Creating the vectors with the polynomial transformation may capture 90% of the information, but will it help explain the Cover Type of our data? To see how much the missclassification error might increase we check with SVM method the difference in accurancy. The following graph shows firstly the error with SVM with all training data. On the other hand, it shows how the classifation error decreases as we include a new principal component. As we can see in the following graph to get a similar performance in the training error with the PCA we would need 30 components, and even then the classification is not stabel. So from this PCA study we decide to proceed without using PCA.
 
 ```{r, fig.width = 7, fig.height = 3, fig.cap = "PCA"}
-setwd("~/Documents/Box Sync/Current/Machine Learning/MLcompetition")
+
 
 PCA.error<-read.table("Data/tables/PCA_error.csv",sep=";")
 
@@ -132,16 +149,4 @@ You can arrange for figures to span across the entire page by using the `fig.ful
 ```{r, fig.width = 10, fig.height = 2, fig.fullwidth = TRUE, fig.cap = "Full width figure"}
 library(ggplot2)
 qplot(wt, mpg, data=mtcars, colour=factor(cyl))
-```
-
-
-# Tables
-
-You can use the **xtable** package to format \LaTeX\ tables that integrate well with the rest of the Tufte handout style. Note that it's important to set the `xtable.comment` and `xtable.booktabs` options as shown below to ensure the table is formatted correctly for inclusion in the document.
-
-```{r, results='asis'}
-library(xtable)
-options(xtable.comment = FALSE)
-options(xtable.booktabs = TRUE)
-xtable(head(mtcars[,1:6]), caption = "First rows of mtcars")
 ```
