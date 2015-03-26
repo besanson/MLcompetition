@@ -34,6 +34,8 @@ testing_set <- read.table("Data/Kaggle_Covertype_test.csv", sep = ",", header = 
 id_testing <- testing_set$id  ## keep the id 
 training_set <- training_set[,-1]  ## remove the id column
 testing_set  <- testing_set[,-1]
+or.training_set<-training_set
+or.testing_set<-testing_set
 
 
 ##-------------------------------------------------------------------------------------------------

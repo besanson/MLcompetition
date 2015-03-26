@@ -18,6 +18,16 @@ Our main objetive for this project was to predicte as best as possible the type 
 
 The data used in this report consists of 54 attributes and 50.000 observations for the training and 100.000 observations for the competition. The attributes with which we may classify the type of tree are 10 quantitative data, 4 binary wilderness areas and 40 binary soil type variables. The trees are classify in 7 different types.
 
+One of the first things we wanted to check is that our training-set was representative enought of the testing data. For that we checked that the training and sample set where equally distributed for all variables. After checking the means and quantiles of the data we saw that the distributions where very similar betweeen the two data sets. That should ensure that the model in the training set performs as good as the testing set. To show visualy the results the following boxplot shows the similarity of elevation of the two data sets. Also a density plot of the splope shows that the two data sets are equally distributed, and therefore our training set is representative of all the data.
+
+```{r,echo=FALSE}
+
+pushViewport(viewport(layout = grid.layout(2, 5)))
+print(density, vp = viewport(layout.pos.row = 1:2, layout.pos.col = 1:3)) 
+print(box.plot1, vp = viewport(layout.pos.row = 1:2, layout.pos.col = 3:5))
+
+```
+
 One of the first things noticed in the data is that the portion of trees are very irregular. The following graph shows the portions of each type of tree in our data. We can see that mainly we have two type of trees *Spruce* and *Lodgepole Pine*, after those two types the other have a smaller presence. We will have to take this into account to check how our classifications methods work with the trees with less observations.
 
 ```{r,echo=FALSE}

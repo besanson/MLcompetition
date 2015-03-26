@@ -52,7 +52,7 @@ n<-nrow(training_set)
 idx <- seq(1:n)
 idx <- idx[sample(1:n)]
 ##shuffel the data
-data<-training_set[idx[1:15000],] ## PCA analysis can't study the 50000 points, so we just take a subset
+data<-training_set[idx[1:5000],] ## PCA analysis can't study the 50000 points, so we just take a subset
 
 ##training linear kernel function.........................................................
 
@@ -72,7 +72,6 @@ pca.poly.cum.variance<-pca.poly.variance[1]
 for(i in 2:length(pca.poly.variance)){
   pca.poly.cum.variance[i]<-pca.poly.variance[i]+pca.poly.cum.variance[i-1]
 }
-
 
 
 
@@ -108,26 +107,45 @@ dev.off()
 ## 2. Plot the error using SVM in all the data and with PCA of polynomial
 ##-------------------------------------------------------------------------------------------------
 
+vectors<-predict(pca.poly,training_set[,-ncol(training_set)])
+vectors<-as.data.frame(vectors)
+vectors<-vectors[,1:30]
+
+
+test.vectors<-predict(pca.poly,testing_set)
+vectorssel<-vectors[,1:2]
+vectorssel<-as.data.frame(vectorssel)
+vectorssel$type<-data$Cover_Type
+svm.poly<-svm(type~.,data=vectorssel, kernel="radial", scale=FALSE,
+              cost=10, gamma=0.5)
+ypredict<-predict(svm.poly,test.vectors[,1:2])
+
+
+
 error<-c()
-for(i in 1:30){ ## loop to see the evolution of the training error, as we include more PC
-  vectors<-pcv(pca.poly)[,1:i]
-  vectors<-as.data.frame(vectors)
-  vectors$type<-data$Cover_Type
-  svm.poly<-ksvm(type~.,data=vectors,C=2, kernel="rbfdot",scale=FALSE)
-  error[i]<-error(svm.poly)
+for(i in 1:20){ ## loop to see the evolution of the training error, as we include more PC
+  vectorssel<-vectors[,1:i]
+  vectorssel<-as.data.frame(vectorssel)
+  vectorssel$type<-data$Cover_Type
+  svm.poly<-svm(type~.,data=vectorssel, kernel="radial", scale=FALSE,
+      cost=10, gamma=0.5)
+  ypredict<-predict(svm.poly) 
+  error[i]<-mean(vectorssel$type!=ypredict)
+  cat("i",i)
+  cat("error",error[i])
 }
 
-svm<-svm(Cover_Type~.,data=data, kernel="radial", scale=FALSE,
+svm<-svm(Cover_Type~.,data=training_set, kernel="radial", scale=FALSE,
     cost=10, gamma=0.5)
 Radial_ypredict<-predict(svm) 
-error.svm<-mean(data$Cover_Type!=Radial_ypredict)
+error.svm<-mean(training_set$Cover_Type!=Radial_ypredict)
 
-error<-cbind(seq(1,30,1),error)
-error.svm<-(cbind(seq(1,30,1),rep(error.svm,30)))
+error<-cbind(seq(1,20,1),errors)
+error.svm<-(cbind(seq(1,20,1),rep(error.svm,20)))
 error<-rbind(error,error.svm)
 error<-as.data.frame(error)
 colnames(error)<-c("PC","error")
-method<-c(rep("PCA",30),rep("NON-PCA",30))
+method<-c(rep("PCA",20),rep("NON-PCA",20))
 error$type<-as.factor(method)
 
 

@@ -38,6 +38,8 @@ if (!require("caret")) install.packages("caret")
 if (!require("e1071")) install.packages("e1071")
 if (!require("doMC")) install.packages("doMC")
 if (!require("doParallel")) install.packages("doParallel")
+library(gridExtra)
+
 if (!require("scatterplot3d")) install.packages("scatterplot3d")## 3D graphs
 ##-------------------------------------------------------------------------------------------------
 ##   Data Files
@@ -52,6 +54,39 @@ PCA_Var<-read.csv("Data/tables/PCA_Variance.csv",sep=";")
 
 Colours.tree<-c("#d53e4f","#fc8d59","#fee08b","#ffffbf","#e6f598","#99d594","#3288bd")
 
+##-------------------------------------------------------------------------------------------------
+##   Density and Boxplot Graph
+##-------------------------------------------------------------------------------------------------
+
+BoxplotData<-as.data.frame(cbind(or.training_set$elevation,rep("training",nrow(or.training_set))))
+BoxplotData<-rbind(BoxplotData,cbind(or.testing_set$elevation,rep("testing",nrow(or.testing_set))))
+colnames(BoxplotData)<-c("elevation","data")
+BoxplotData$elevation<-as.numeric(BoxplotData$elevation)
+
+
+box.plot1<-ggplot(BoxplotData,aes(factor(data),elevation))+geom_boxplot(aes(fill=factor(data)))+
+  theme(axis.text.x = element_text(angle=-30),panel.background = element_rect(fill = "white"),
+        legend.position="none")+
+  scale_fill_manual(name="colour",values=Colours.tree[c(1,7)])+
+  labs(title="BoxPlot of Elevation",x="data")
+
+DensityData<-as.data.frame(cbind(or.training_set$slope,rep("training",nrow(or.training_set))))
+DensityData<-rbind(DensityData,cbind(or.testing_set$slope,rep("testing",nrow(or.testing_set))))
+colnames(DensityData)<-c("slope","data")
+DensityData$slope<-as.numeric(DensityData$slope)
+
+
+
+density<-ggplot(DensityData,aes(x=slope,fill=factor(data))) + 
+  geom_density(alpha=0.3)+
+  scale_fill_manual(name="colour",values=Colours.tree[c(1,7)])+
+  theme(axis.text.x = element_text(angle=-30),panel.background = element_rect(fill = "white"))+
+  scale_y_continuous(breaks=c(0.01,0.02,0.03,0.04,0.05))+
+  labs(title="Density of Slope",x="data")
+
+
+rm(BoxplotData)
+rm(DensityData)
 
 ##-------------------------------------------------------------------------------------------------
 ##   Type of Trees Graph
@@ -81,6 +116,7 @@ for(i in 1:nrow(training_set)){
   ind<-training_set$Cover_Type[i]
   training_set$colour[i]<-Colours.tree[ind]
 }
+
 
 
 ##-------------------------------------------------------------------------------------------------
