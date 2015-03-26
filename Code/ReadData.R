@@ -15,12 +15,10 @@
 # source("Code/ReadData.R")
 
 ##-------------------------------------------------------------------------------------------------
-##Marias directory
-setwd("~/Documents/Box Sync/Current/Machine Learning/MLcompetition")
+source("Code/Packages.R")
 
-
-if (!require("caret")) install.packages("caret")
-if (!require("e1071")) install.packages("e1071")
+###LOAD PACKAGES
+loadPackages(c("caret", "e1071"))
 
 ##-------------------------------------------------------------------------------------------------
 ##INCLUDE DATA
@@ -50,7 +48,43 @@ training_set<-training_set[,-ncol(training_set)]
 #shift elevation by vertical distance
 training_set$vertDistHyd_ElevShift <- (training_set$elevation -training_set$ver_dist_hyd)
 
-#shift elevation by horizontal distance
+#Look for the exact number that reduces skewnees 
+# ..............................................................................................
+###shift horizontal, need to optimize shift as horizontal not as easy as vertical, 
+###optimize by minimizing skewness of class 1 and class 2
+#create shift sequence and matrix to record skew with each level of shift
+#pctShift <- seq(0.1,0.9,0.01)
+#skewMat <- matrix(0,2,length(pctShift))
+#skewMat[1,] <- pctShift
+
+#loop through each shift
+#for (n in 1:length(pctShift)){
+  
+  #grab specific value in shift sequence
+  #pct <- pctShift[n]
+  
+  #grab two separate vectors of Class 1 and Class 2 horizontally shifted elevation using the percent shift
+  #training_set$horDistHyd_ElevShift <- (training_set$elevation -training_set$hor_dist_hyd*pct)
+  #class1 <- training_set[training_set$Cover_Type==1,]
+  #class2 <- training_set[training_set$Cover_Type==2,]
+  
+  #measure skew of each class, now shifted by the iterating percent shift
+  #skew1 <- skewness(class1$horDistHyd_ElevShift)
+  #skew2 <- skewness(class2$horDistHyd_ElevShift)
+  
+  #record total skew (absolute unneeded for this dataset, but would be needed
+  #generally for this approach as negative and positive skew both suboptimal)
+  #totSkew <- abs(skew1) + abs(skew2)
+  #skewMat[2,n] <- totSkew
+  
+#}
+
+#####
+#0.6 skew wins by inspecting skewMat
+#skewMat
+#####
+# ..............................................................................................
+
 # 0.6 was selected by choosing the value that reduced the skew of 
 # classes 1 and 2 the most (to maximise this overlap group's separability
 training_set$horDistHyd_ElevShift <- (training_set$elevation -training_set$hor_dist_hyd*0.6)
@@ -115,4 +149,5 @@ testing_set<-data.frame(predict(NormData,testing_set[,-c(11:53,56,57)]),
 rm(conVarianza)
 rm(Cover_Type)
 rm(NormData)
+
 

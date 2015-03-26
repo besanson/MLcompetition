@@ -24,15 +24,10 @@
 ##-------------------------------------------------------------------------------------------------
 ## LIBRARIES
 ##-------------------------------------------------------------------------------------------------
+source("Code/Packages.R")
 
-
-# Import packages and functions
-##Packages that are used in this code
-
-if (!require("caret")) install.packages("caret")
-if (!require("e1071")) install.packages("e1071")
-if (!require("doMC")) install.packages("doMC")
-if (!require("doParallel")) install.packages("doParallel")
+###LOAD PACKAGES
+loadPackages(c("caret", "e1071","doParallel"))
 
 ##-------------------------------------------------------------------------------------------------
 ##INCLUDE DATA

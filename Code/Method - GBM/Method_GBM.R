@@ -17,15 +17,11 @@
 ##-------------------------------------------------------------------------------------------------
 ## LIBRARIES
 ##-------------------------------------------------------------------------------------------------
+source("Code/Packages.R")
 
-# Import packages and functions
-##Packages that are used in this code
+###LOAD PACKAGES
+loadPackages(c("h2o","doParallel"))
 
-if (!require("caret")) install.packages("caret")
-if (!require("e1071")) install.packages("e1071")
-#if (!require("doMC")) install.packages("doMC")
-if (!require("doParallel")) install.packages("doParallel")
-if (!require("h2o")) install.packages("h2o")
 
 ##-------------------------------------------------------------------------------------------------
 ##INCLUDE DATA
