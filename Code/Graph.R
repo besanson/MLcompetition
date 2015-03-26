@@ -24,29 +24,23 @@
 ##plot2............... Line plot with the variance capture by PCA
 
 ##-------------------------------------------------------------------------------------------------
-##Marias directory
-setwd("~/Documents/Box Sync/Current/Machine Learning/MLcompetition")
 
 rm(list=ls())
 
 ## LIBRARIES
 
-# Import packages and functions
-##Packages that are used in this code
+source("Code/Packages.R")
 
-if (!require("caret")) install.packages("caret")
-if (!require("e1071")) install.packages("e1071")
-if (!require("doMC")) install.packages("doMC")
-if (!require("doParallel")) install.packages("doParallel")
-library(gridExtra)
+###LOAD PACKAGES
+loadPackages(c("caret", "e1071","doParallel","doMC","gridExtra","scatterplot3d"))
 
-if (!require("scatterplot3d")) install.packages("scatterplot3d")## 3D graphs
+
 ##-------------------------------------------------------------------------------------------------
 ##   Data Files
 ##-------------------------------------------------------------------------------------------------
 
 source("Code/ReadData.R") ## all variables
-PCA_Var<-read.csv("Data/tables/PCA_Variance.csv",sep=";")
+#PCA_Var<-read.csv("Data/tables/PCA_Variance.csv",sep=";")
 
 ##-------------------------------------------------------------------------------------------------
 ##   Colours
@@ -66,6 +60,13 @@ BoxplotData$elevation<-as.numeric(BoxplotData$elevation)
 
 box.plot1<-ggplot(BoxplotData,aes(factor(data),elevation))+geom_boxplot(aes(fill=factor(data)))+
   theme(axis.text.x = element_text(angle=-30),panel.background = element_rect(fill = "white"),
+        panel.grid.major.x = element_line(colour = "white",linetype="dotted"),
+        panel.grid.minor.x = element_line(colour = "white"),
+        panel.grid.minor.y = element_line(colour = "grey"),
+        panel.grid.major.y = element_line(colour = "grey"),
+        axis.text =element_text(face="bold",size="10", color="black"),
+        axis.title =element_text(face="bold",size="14", color="black"),
+        plot.title=element_text(face="bold",size="14", color="black"),
         legend.position="none")+
   scale_fill_manual(name="colour",values=Colours.tree[c(1,7)])+
   labs(title="BoxPlot of Elevation",x="data")
@@ -80,7 +81,14 @@ DensityData$slope<-as.numeric(DensityData$slope)
 density<-ggplot(DensityData,aes(x=slope,fill=factor(data))) + 
   geom_density(alpha=0.3)+
   scale_fill_manual(name="colour",values=Colours.tree[c(1,7)])+
-  theme(axis.text.x = element_text(angle=-30),panel.background = element_rect(fill = "white"))+
+  theme(axis.text.x = element_text(angle=-30),panel.background = element_rect(fill = "white"),
+        panel.grid.major.x = element_line(colour = "white",linetype="dotted"),
+        panel.grid.minor.x = element_line(colour = "white"),
+        panel.grid.minor.y = element_line(colour = "grey"),
+        panel.grid.major.y = element_line(colour = "grey"),
+        axis.text =element_text(face="bold",size="10", color="black"),
+        axis.title =element_text(face="bold",size="14", color="black"),
+        plot.title=element_text(face="bold",size="14", color="black"))+
   scale_y_continuous(breaks=c(0.01,0.02,0.03,0.04,0.05))+
   labs(title="Density of Slope",x="data")
 
@@ -103,6 +111,7 @@ dev.off()
 ##-------------------------------------------------------------------------------------------------
 ##   Type of Trees Graph
 ##-------------------------------------------------------------------------------------------------
+library(scales)
 
 ## graph showing the portion of the trees in our training set
 
@@ -111,12 +120,24 @@ training_set$Cover_Type_label<-factor(training_set$Cover_Type, levels=c(1,2,3,4,
                                                "Cottonwood/Willow","Aspen","Douglas-fir","Krummholz"))
 
 
+
+
+
 ##Export Results:     ----- . ----- . ----- . ----- . ----- . ----- . ----- .
-png(filename="Report/Graphs/densityboxplot.png",width = 1200, height = 700)
-ggplot(training_set, aes(x=Cover_Type_label,fill=Cover_Type_label))+geom_bar()+
+png(filename="Report/Graphs/DistributionTrees.png",width = 1200, height = 700)
+ggplot(training_set, aes(x = Cover_Type_label,fill=Cover_Type_label)) + 
+  geom_bar(aes(y = (..count..)/sum(..count..))) + 
   scale_fill_manual(name="colour",values=Colours.tree)+
-  theme(axis.text.x = element_text(angle=-30),panel.background = element_rect(fill = "white"))+
-  labs(title="Distribution of the type of Trees",x="Type of tree")
+  theme(axis.text.x = element_text(angle=-30),panel.background = element_rect(fill = "white"),
+        panel.grid.major.x = element_line(colour = "white",linetype="dotted"),
+        panel.grid.minor.x = element_line(colour = "white"),
+        panel.grid.minor.y = element_line(colour = "grey"),
+        panel.grid.major.y = element_line(colour = "grey"),
+        axis.text =element_text(face="bold",size="10", color="black"),
+        axis.title =element_text(face="bold",size="14", color="black"),
+        plot.title=element_text(face="bold",size="14", color="black"))+
+  labs(title="Distribution of Cover Type",x="Type of tree",y="percentage")+
+  scale_y_continuous(labels = percent)
 dev.off()
 
 ## End of Exporting   ----- . ----- . ----- . ----- . ----- . ----- . ----- .
@@ -156,15 +177,33 @@ with(training_set,scatterplot3d(fire_risk,horDistHyd_ElevShift, hor_dist_hyd,
                                 col.grid = NULL, col.axis = "grey"))
 
 
-
-
-
-
 ##-------------------------------------------------------------------------------------------------
-##   PCA Explained Variance
+##   Accurancy Graph
 ##-------------------------------------------------------------------------------------------------
 
-plot2<-ggplot(PCA_Var,aes(x=PC,y=Variance,colour=Method))+geom_line()+theme_bw()+
-  scale_x_continuous(breaks=seq(1,10,1))+ylab("Explained Variance")
+accurancy<-c(0.8626,0.77418,0.87320,0.96,0.903,0.907,0.922,0.928)
+Method<-c(rep("KNN",2),rep("SVM",2),rep("RF",2),rep("GBM",2))
+Data<-c(rep(c("Test 10 percent","Training"),4))
+
+Results<-data.frame(Method=Method,Accurancy=accurancy,Data=Data)
 
 
+
+##Export Results:     ----- . ----- . ----- . ----- . ----- . ----- . ----- .
+png(filename="Report/Graphs/Accurancy.png",width = 1100, height = 600)
+ggplot(Results,aes(x=Accurancy,y=Method,colour=Data))+geom_point(size=5)+
+  theme(panel.background = element_rect(fill = "white"),
+        panel.grid.major.x = element_line(colour = "white",linetype="dotted"),
+        panel.grid.minor.x = element_line(colour = "white"),
+        panel.grid.minor.y = element_line(colour = "grey"),
+        panel.grid.major.y = element_line(colour = "grey"),
+        legend.position = "top",
+        axis.text =element_text(face="bold",size="14", color="black"),
+        axis.title =element_text(face="bold",size="14", color="black"),
+        plot.title=element_text(face="bold",size="14", color="black"))+
+  labs(title="Accurancy for Different Methods on the Training set and the 10% Testing Data on Kaggle")
+dev.off()
+## End of Exporting   ----- . ----- . ----- . ----- . ----- . ----- . ----- .
+
+
+  
