@@ -171,17 +171,17 @@ for(i in 1:nrow(training_set)){
 ##   Accurancy Graph
 ##-------------------------------------------------------------------------------------------------
 
-accurancy<-c(0.8626,0.77418,0.87320,0.96,0.903,0.907,0.922,0.928)
+accuracy<-c(0.8626,0.77418,0.87320,0.96,0.903,0.907,0.922,0.928)
 Method<-c(rep("KNN",2),rep("SVM",2),rep("RF",2),rep("GBM",2))
 Data<-c(rep(c("Test 10 percent","Training"),4))
 
-Results<-data.frame(Method=Method,Accurancy=accurancy,Data=Data)
+Results<-data.frame(Method=Method,Accuracy=accuracy,Data=Data)
 
 
 
 ##Export Results:     ----- . ----- . ----- . ----- . ----- . ----- . ----- .
-png(filename="Report/Graphs/Accurancy.png",width = 1100, height = 600)
-ggplot(Results,aes(x=Accurancy,y=Method,colour=Data))+geom_point(size=5)+
+png(filename="Report/Graphs/Accuracy.png",width = 1100, height = 600)
+ggplot(Results,aes(x=Accuracy,y=Method,colour=Data))+geom_point(size=5)+
   theme(panel.background = element_rect(fill = "white"),
         panel.grid.major.x = element_line(colour = "white",linetype="dotted"),
         panel.grid.minor.x = element_line(colour = "white"),
@@ -191,7 +191,7 @@ ggplot(Results,aes(x=Accurancy,y=Method,colour=Data))+geom_point(size=5)+
         axis.text =element_text(face="bold",size="14", color="black"),
         axis.title =element_text(face="bold",size="14", color="black"),
         plot.title=element_text(face="bold",size="14", color="black"))+
-  labs(title="Accurancy for Different Methods on the Training set and the 10% Testing Data on Kaggle")
+  labs(title="Accuracy for Different Methods on the Training set and the 10% Testing Data on Kaggle")
 dev.off()
 ## End of Exporting   ----- . ----- . ----- . ----- . ----- . ----- . ----- .
 
