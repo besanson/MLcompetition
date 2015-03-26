@@ -18,7 +18,7 @@
 ##-------------------------------------------------------------------------------------------------
 ## LIBRARIES
 ##-------------------------------------------------------------------------------------------------
-source("Code/Packages.R")
+source("Code/Utilities/Packages.R")
 
 ###LOAD PACKAGES
 loadPackages(c("caret", "e1071","doParallel"))
@@ -30,7 +30,7 @@ loadPackages(c("caret", "e1071","doParallel"))
 ## Clear environment
 rm(list=ls())
 
-source("Code/ReadData.R")
+source("Code/Utilities/ReadData.R")
 cl <- makeCluster(detectCores()-1) ## detect the cores in the machine
 
 ##-------------------------------------------------------------------------------------------------

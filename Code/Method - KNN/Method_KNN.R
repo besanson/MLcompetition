@@ -16,7 +16,7 @@
 ##-------------------------------------------------------------------------------------------------
 ## LIBRARIES
 ##-------------------------------------------------------------------------------------------------
-source("Code/Packages.R")
+source("Code/Utilities/Packages.R")
 
 ###LOAD PACKAGES
 loadPackages(c("class","doSNOW","doParallel","dplyr","foreach"))
@@ -27,7 +27,7 @@ loadPackages(c("class","doSNOW","doParallel","dplyr","foreach"))
 rm(list=ls())
 
 ##INCLUDE DATA
-source("Code/ReadData.R")
+source("Code/Utilities/ReadData.R")
 
 ##-------------------------------------------------------------------------------------------------
 ##   Training of data

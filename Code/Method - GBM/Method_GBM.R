@@ -17,7 +17,7 @@
 ##-------------------------------------------------------------------------------------------------
 ## LIBRARIES
 ##-------------------------------------------------------------------------------------------------
-source("Code/Packages.R")
+source("Code/Utilities/Packages.R")
 
 ###LOAD PACKAGES
 loadPackages(c("h2o","doParallel"))
@@ -28,7 +28,7 @@ loadPackages(c("h2o","doParallel"))
 ##-------------------------------------------------------------------------------------------------
 rm(list=ls())
 cl <- makeCluster(detectCores()-1) ## detect the cores in the machine
-source("Code/ReadData.R") ## all variables
+source("Code/Utilities/ReadData.R") ## all variables
 
 
 ##-------------------------------------------------------------------------------------------------
