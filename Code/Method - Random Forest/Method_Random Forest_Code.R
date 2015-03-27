@@ -20,10 +20,10 @@
 ##-------------------------------------------------------------------------------------------------
 ## Clear environment
 rm(list=ls())
-source("Code/Utilities/Packages.R")
+if (!require("e1071")) install.packages("e1071")
+if (!require("caret")) install.packages("caret")
+if (!require("doParallel")) install.packages("doParallel")
 
-###LOAD PACKAGES
-loadPackages(c("caret", "e1071","doParallel"))
 
 ##-------------------------------------------------------------------------------------------------
 ##INCLUDE DATA

@@ -16,11 +16,10 @@
 
 ##-------------------------------------------------------------------------------------------------
 rm(list=ls())
+if (!require("e1071")) install.packages("e1071")
+if (!require("caret")) install.packages("caret")
 
-source("Code/Utilities/Packages.R")
 
-###LOAD PACKAGES
-loadPackages(c("caret", "e1071"))
 
 ##-------------------------------------------------------------------------------------------------
 ##INCLUDE DATA

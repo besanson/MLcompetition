@@ -27,10 +27,13 @@ rm(list=ls())
 ##-------------------------------------------------------------------------------------------------
 ## LIBRARIES
 ##-------------------------------------------------------------------------------------------------
-source("Code/Utilities/Packages.R")
 
 ###LOAD PACKAGES
-loadPackages(c("caret", "e1071","doParallel"))
+if (!require("e1071")) install.packages("e1071")
+if (!require("caret")) install.packages("caret")
+if (!require("doParallel")) install.packages("doParallel")
+
+
 
 ##-------------------------------------------------------------------------------------------------
 ##INCLUDE DATA

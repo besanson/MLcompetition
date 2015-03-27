@@ -18,10 +18,12 @@
 ##-------------------------------------------------------------------------------------------------
 # Clear environment
 rm(list=ls())
-source("Code/Utilities/Packages.R")
 
-###LOAD PACKAGES
-loadPackages(c("class","doSNOW","doParallel","dplyr","foreach"))
+if (!require("class")) install.packages("class")
+if (!require("doSNOW")) install.packages("doSNOW")
+if (!require("doParallel")) install.packages("doParallel")
+if (!require("dplyr")) install.packages("dplyr")
+if (!require("foreach")) install.packages("foreach")
 
 ##-------------------------------------------------------------------------------------------------
 

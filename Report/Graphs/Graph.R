@@ -28,11 +28,12 @@
 rm(list=ls())
 
 ## LIBRARIES
-
-source("Code/Packages.R")
-
-###LOAD PACKAGES
-loadPackages(c("caret", "e1071","doParallel","doMC","gridExtra","scatterplot3d"))
+if (!require("e1071")) install.packages("e1071")
+if (!require("caret")) install.packages("caret")
+if (!require("doParallel")) install.packages("doParallel")
+if (!require("doMC")) install.packages("doMC")
+if (!require("gridExtra")) install.packages("gridExtra")
+if (!require("scatterplot3d")) install.packages("scatterplot3d")
 
 
 ##-------------------------------------------------------------------------------------------------

@@ -18,11 +18,8 @@
 ## LIBRARIES
 ##-------------------------------------------------------------------------------------------------
 rm(list=ls())
-source("Code/Utilities/Packages.R")
-
-###LOAD PACKAGES
-loadPackages(c("h2o","doParallel"))
-
+if (!require("h2o")) install.packages("h2o")
+if (!require("doParallel")) install.packages("doParallel")
 
 ##-------------------------------------------------------------------------------------------------
 ##INCLUDE DATA
