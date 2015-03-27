@@ -11,9 +11,7 @@ Team members:
 The following folder contains all the used codes to test different methods and create the report. The structure of the folder is the following:
 
 	-Code: contains the following files and folders:
-		- Packages: creates a function to install and load libraries
-		- ReadData: reads data into R and creates the new features
-		- Graph: Code for creating some Graphs for the report
+		- Utilities/ReadData: reads data into R and creates the new features
 		- Folders: each folder contains the code to test each of the models
 		
 	-Data: contains the initial training and setting data
