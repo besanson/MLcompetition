@@ -15,6 +15,8 @@
 # source("Code/ReadData.R")
 
 ##-------------------------------------------------------------------------------------------------
+rm(list=ls())
+
 source("Code/Packages.R")
 
 ###LOAD PACKAGES
@@ -23,10 +25,6 @@ loadPackages(c("caret", "e1071"))
 ##-------------------------------------------------------------------------------------------------
 ##INCLUDE DATA
 ##-------------------------------------------------------------------------------------------------
-
-rm(list=ls())
-
-
 training_set <- read.table("Data/Kaggle_Covertype_training.csv", sep = ",", header = T)
 testing_set <- read.table("Data/Kaggle_Covertype_test.csv", sep = ",", header = T)
 id_testing <- testing_set$id  ## keep the id 
