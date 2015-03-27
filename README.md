@@ -22,7 +22,7 @@ The following folder contains all the used codes to test different methods and c
 		-Graphs: folders of all the final graph in png format
 		-Results: error of the training set with different parameters and methods
 ´
-*Instructions*:
-You can open this repository as a *R Studio Project* that automatically sets the MLCompetition folder as default (please, if you decide to do other approach remember to set this folder as the working directory).
-The code to test our final GBM choice is located at: ´Code-> Mehod-GBM -> R code´
-Only setting directory in the and running Method_GBM.R would run the GBM code.
+**Instructions**:
+You can open this repository as a *R Studio Project* that automatically sets the `MLCompetition folder` as default (please, if you decide to do other approach remember to set this folder as the working directory).
+The code to test our final GBM choice is located at: `Code-> Mehod-GBM -> R code`.
+Please remember that the `H2o` package runs on the `JAVA Virtual Machine`.
