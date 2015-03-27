@@ -3,15 +3,15 @@ title: 'Machine Learning Competition: Report on Forest Cover Type Prediction'
 author: "Fernandez, María, McIver, Jordan, Besanson, Gaston"
 output: rmarkdown::tufte_handout
 ---
-# Introduction
-\newthought{This report}'s purpose is to explain our experience on the Forest Cover Type Prediction's Competition.^[https://inclass.kaggle.com/c/prediction-of-a-forest-covertype]. Our objective in this project was to *predict as best as possible the type of tree in a region with the purpose of minimizing the fires*. Even though that we used the same loss for each type of misclassification -in other words, all trees are equally important-, we decided to create new features^[The recommended approach would be consider penalizing more the misclassification of very flammable trees]. **This feature is explained in detailed in the attached PowerPoint presentation**.  
+# __Introduction__
+\newthought{This report}'s purpose is to explain our experience on the Forest Cover Type Prediction's Competition.^[https://inclass.kaggle.com/c/prediction-of-a-forest-covertype]. Our objective in this project was to *predict as best as possible the type of tree in a region with the purpose of minimizing the fires*. Even though we used the same loss for each type of misclassification -in other words, all trees are equally important-, we decided to create new features^[The recommended approach would be consider penalizing more the misclassification of very flammable trees.]. **This feature and others are explained in detailed in the attached PowerPoint presentation**.  
 
-# Data Exploration and Feature Creation
+# __Data Exploration and Feature Creation__
 
-\newthought{The dataset} used in this report consists of 54 attributes (or features) and 50.000 observations for the training (plus one class attribute) and 100.000 observations for the competition.
+\newthought{The dataset} used in this report consists of 54 attributes (or features) and 50.000 observations for training (plus one class attribute) and 100.000 observations for the competition.
 The attributes are:  
 
-* *10 quantitative data*  
+* *10 quantitative variables*  
 
 Feature                             | Range
 ----------------------------------- | --------------
@@ -39,15 +39,15 @@ Class | Tree Type
 6     | Douglas-fir
 7     | Krummholz
 
-\newthought{First}, we quickly checked that our training set was representative of the testing set data.  The means and quantiles of each feature where very similar between the two datasets. That gave us a hint, that the model training error would be a good proxy for the test error; *dismissing our initial concerns of overfitting*. The following boxplot shows the similarity of `Elevation` of the two datasets. Besides, a density plot of the `Slope` shows that the two datasets are equally distributed.^[Please for additional plots see the attached PowerPoint presentation.]
+\newthought{First}, we quickly checked that our training set was representative of the testing set data.  The means and quantiles of each feature where very similar between the two datasets. That gave us a hint, that the model training error would be a good proxy for the test error; *dismissing our initial concerns of overfitting*. The following boxplot shows the similarity of `Elevation` of the two datasets. A density plot of the `Slope` shows that the two datasets are equally distributed as well.^[For additional plots please see the attached PowerPoint presentation.]
 
 \includegraphics[width=400pt]{Graphs/densityboxplot.png}
 
-\newthought{Second}, we noticed that the training set is **imbalanced**^[**This is also present in the original dataset http://kdd.ics.uci.edu/databases/covertype/covertype.html**.]; meaning that we have two type of trees *Spruce* (Class 1) and *Lodgepole Pine* (Class 2) that represent over 80% of the observations.
+\newthought{Second}, we noticed that the training set is **imbalanced**^[**This is also present in the original dataset http://kdd.ics.uci.edu/databases/covertype/covertype.html**.]; meaning that we have two types of trees *Spruce* (Class 1) and *Lodgepole Pine* (Class 2) that represent over 80% of the observations.
 
 \includegraphics[width=400pt]{Graphs/DistributionTrees.png}
 
-\newthought{We created} six new variables to try to identify features important to fire risk.^[we try, but did not continue, to reduce dimensionality through Principal Component Analysis, but the loss of variance decreased the models performance (there were loss of information). We tried the linear and polynomial transformation of the training set data and run it with the Support Vector Machine method. Please see /Report/Graphs/old folder to see Plots and PCA code. Besides, we decided not to collapse the binary variables. Please see: Nagel et al. [*Exploring Non-Linear Data Relationships in VR using the 3D Visual Data Mining System*](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.91.5509&rep=rep1&type=pdf).] Finally, we applied a *normalization* on both the training and the test sets to the 60 features.^[`preProcess` function from the `Caret` package.]  
+\newthought{We created} six new variables to try to identify features important to fire risk.^[we try, but did not continue, to reduce dimensionality through Principal Component Analysis, but the loss of variance decreased the models performance (there was loss of information). We tried linear and polynomial transformations of the training data and ran it with the Support Vector Machine method. Please see /Report/Graphs/old folder to see Plots and PCA code. Also, we decided not to collapse the binary variables. Please see: Nagel et al. [*Exploring Non-Linear Data Relationships in VR using the 3D Visual Data Mining System*](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.91.5509&rep=rep1&type=pdf).] Finally, we applied a *normalization* on both the training and the test sets to the 60 features.^[`preProcess` function from the `Caret` package. We try also applying this pre-process to only the continuous variables, but did not make more difference.]  
 
 New Feature                           | Type of Variable
 --------------------------------------|------------------
@@ -55,40 +55,40 @@ No Sun at 3pm                         | Binary variable
 Zero Horizontal Distance to Hydrology | Binary variable                     
 Crow-fly Distance                     | Continuous variable                 
 Fire Risk                             | Continuous variable    
-Shift-Vertical Distance to Hydrology  | Continuous variable 
-Shift-Horizontal Distance to Hydrology| Continuous variable 
+Elev. Shift-Vertical Distance to Hydrology  | Continuous variable 
+Elev. Shift-Horizontal Distance to Hydrology| Continuous variable 
 
 *For further detail see attached PowerPoint Presentation*.
 
-# Machine Learning Methods
+# __Machine Learning Methods__
 
 We are going to study the performance of following methods on the dataset.
 
-## Support Vector Machine (SVM)^[For this method, we used the `e1071` package]
+## __K Nearest Neighbor__^[For this method, we used the `class` package]
 
-\newthought{SVM} tries to find a hyperplane that splits the data with the maximum margin. A clear shortcoming for plain-vanilla SVM is that this dataset is not linearly separable. To address this, we introduce the kernel transformations and try to classify the points. But, there is a second problem that the classes are imbalanced and this can produce suboptimal models which are biased towards the majority class and have low performance on the minority class, like most of the other classification paradigms. ^[Further readings, please see: Trebara,Mira,Steele, Nigel, [*Application of distributed SVM architectures in classifying forest data cover types*](http://www.sciencedirect.com/science/article/pii/S0168169908000483). Batuwita,Rukshan, Palade,Vasile, [*Class Imbalance Learning Methods for Support Vector Machines*](http://www.cs.ox.ac.uk/people/vasile.palade/papers/Class-Imbalance-SVM.pdf)]. We include weights for the classes to try to overcome this problem.
-
-\newthought{Parameters to train}:  
-1. *kernel*: nonlinear kernel function (such as a Gaussian radial basis function^[$K(x_i,x_j) = e^{-\frac{||x_i-x_j||^2}{2\sigma^2}}$, where $\sigma$ is the spread or standard deviation.] or Polynomial kernel).  
-2. *cost*: is the parameter for the soft margin cost function, which controls the influence of each individual support vector; this process involves trading error penalty for stability.  
-3. *gamma*: is a kernel parameter, 
-
-##K Nearest Neighbor^[For this method, we used the `class` package]
-
-\newthought{KNN} is a lazy learning algorithms^[While a training dataset is required, it is used solely to populate a sample of the search space with instances whose class is known. No actual model or learning is performed during this phase.], that stores all available cases and classifies new cases based on a similarity measure. We considered because it doesn't need for the classes to be linearly separable and because it is very simple to implement with only two parameter to consider: the distance metric^[Given that we used the build-in function of a package we were stuck with the Euclidean distance that works well with continuous variables but for categorical data other metrics can be considered.] and the neighbors being considered. On the down side, this algorithm is also sensitive to unbalanced dataset like this one; where infrequent classes are therefore often dominated in most neighborhoods.^[This can be alleviated through balanced sampling of the more popular classes, which we didn't do for this method]
+\newthought{KNN} is a lazy learning algorithms^[While a training dataset is required, it is used solely to populate a sample of the search space with instances whose class is known. No actual model or learning is performed during this phase.], that stores all available cases and classifies new cases based on a similarity measure. We considered KNN because it doesn't need classes to be linearly separable and because it is very simple to implement with only two parameters to consider: the distance metric^[Given that we used the build-in function of a package we were stuck with the Euclidean distance that works well with continuous variables but for categorical data other metrics can be considered.] and the neighbors being considered. On the down side, this algorithm is also sensitive to unbalanced dataset like this one; where infrequent classes are therefore often dominated in most neighborhoods.^[This can be alleviated through balanced sampling of the more popular classes, which we didn't do for this method]
 
 \newthought{Parameters to train}:  
 1. *k*: is the number of neighbors considered.
 
-## Random Forest^[For this method, we used the `caret` package]
-\newthought{Random Forests} are an ensemble learning method that construct a number of decision trees at training time and outputting the class that is the mode of the classes output by individual trees. Random Forests are a combination of tree predictors where each tree depends on the values of a random vector sampled independently with the same distribution for all trees in the forest. The basic principle is that a group of “weak learners” can come together to form a “strong learner”. *Random Forests are a wonderful tool for making predictions considering they do not overfit because of the law of large numbers.*^[Further readings, please see: Sug,Hyontai, [*Better Induction Models for Classification of Forest Cover*](http://link.springer.com/chapter/10.1007/978-3-642-40675-1_29#page-1)]. An important characteristic of this method is that provides methods for balancing error in class population unbalanced datasets.
+## __Support Vector Machine (SVM)__^[For this method, we used the `e1071` package]
+
+\newthought{SVM} tries to find a hyperplane that splits the data with the maximum margin. A clear shortcoming for plain-vanilla SVM is that this dataset is not linearly separable. To address this, we introduce the kernel transformations and try to classify the points. But, there is a second problem that the classes are imbalanced and this can produce suboptimal models which are biased towards the majority class and have low performance on the minority class, like most of the other classification paradigms. ^[Further readings, please see: Trebara,Mira,Steele, Nigel, [*Application of distributed SVM architectures in classifying forest data cover types*](http://www.sciencedirect.com/science/article/pii/S0168169908000483) Batuwita,Rukshan, Palade,Vasile, [*Class Imbalance Learning Methods for Support Vector Machines*](http://www.cs.ox.ac.uk/people/vasile.palade/papers/Class-Imbalance-SVM.pdf)]. We included weights for the classes to try to overcome this problem; but the result was not promising because, even though it classified better the "smaller" classes, the training error was higher.
+
+\newthought{Parameters to train}:  
+1. *kernel*: nonlinear kernel function (such as a Gaussian radial basis function^[$K(x_i,x_j) = e^{-\frac{||x_i-x_j||^2}{2\sigma^2}}$, where $\sigma$ is the spread or standard deviation.] or Polynomial kernel).  
+2. *cost*: is the parameter for the soft margin cost function, which controls the influence of each individual support vector; this process involves trading error penalty for stability.  
+3. *gamma*: is a kernel parameter.
+
+## __Random Forest__^[For this method, we used the `caret` package]
+\newthought{Random Forests} are an ensemble learning method that construct a number of decision trees at training time and outputs the class that is the mode of the classes output by individual trees. Random Forests are a combination of tree predictors where each tree depends on the values of a random vector sampled independently with the same distribution for all trees in the forest. The basic principle is that a group of “weak learners” can come together to form a “strong learner”. *Random Forests are a wonderful tool for making predictions considering they do not overfit because of the law of large numbers.*^[Further readings, please see: Sug,Hyontai, [*Better Induction Models for Classification of Forest Cover*](http://link.springer.com/chapter/10.1007/978-3-642-40675-1_29#page-1)]. An important characteristic of this method is that it provides methods for balancing error in class population unbalanced datasets.
 
 \newthought{Parameters to train}:   
 1. *Randomly Selected Predictors*: is the number of attributes to pick randomly to generate each subtree in a tree in the forest. The recommended default parameter value is the square root of the number of parameters.  
 2. *Number of trees*: The recommended default parameter value is among the hundreds.  
 
-## Gradient Boosting Machine (GBM)^[For this method, we used the `H2o` package. We try first with the `gbm` package, but was unstable.]
-\newthought{On the contrary} to Random Forest, that rely on simple averaging of models in the ensemble; the main idea of boosting is to add new models to the ensemble sequentially. At each particular iteration, a new weak, base-learner model is trained with respect to the error of the whole ensemble learnt so far. To establish a connection with the statistical framework, a gradient-descent based formulation of boosting methods was derived. This formulation was called the gradient boosting machines.  
+## __Gradient Boosting Machine (GBM)__^[For this method, we used the `H2o` package. We tried first with the `gbm` package, but found it was unstable. **Please remember that the `H2o` package runs on `Java Virtual Machine`, it uses the `RJava` package. If you are using the AWS machine with the Rstudio image you have to to install `JVM` and `RJava` from the command line** ]
+\newthought{On the contrary} to Random Forest, that relies on simple averaging of models in the ensemble; the main idea of boosting is to add new models to the ensemble sequentially. At each particular iteration, a new weak, base-learner model is trained with respect to the error of the whole ensemble learnt so far. To establish a connection with the statistical framework, a gradient-descent based formulation of boosting methods was derived. This formulation was called the gradient boosting machines.  
 \newthought{In GBMs}, the learning procedure consecutively fits new models to provide a more accurate estimate of the response variable. The principle idea behind this algorithm is to construct the new base-learners to be maximally correlated with the negative gradient of the loss function, associated with the whole ensemble.^[Further readings, please see: Natekin,Alexey, Knoll, Alois, [*Gradient boosting machines, a tutorial*](http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3885826/)] We picked this method because it introduces a lot of freedom into the model design.
 
 \newthought{Parameters to train}:  
@@ -97,21 +97,23 @@ We are going to study the performance of following methods on the dataset.
 3. *Minimum Rows*: The minimum number of observations to include in a terminal leaf.  
 4. *Shrinkage*: The rate at which the algorithm should converge. 
 
-# Results
-\newthought{For each method} we try different parameters, especially with the ensemble methods that where our top picks for this competition. To pick among these parameters, we did 10-fold cross validation. Given the amount of parameters that we try for Random Forest and GBM, the training of the models were done in batches to reduce the computational burden of not being able to use the Virtual Machines. **Please see in the Appendix the detail information on the training of the models for the different methods**.
+# __Results__
+\newthought{For each method} we tried different parameters, especially with the ensemble methods which where our top picks for this competition. To pick among these parameters, we did 10-fold cross validation. Given the amount of parameters that we tried for Random Forest and GBM, the training of the models was done in batches. **Please see in the Appendix the detailed information on training the models for the different methods**.
 
-\newthought{The following} plot shows the best model for each method and it accuracy in the training set and in the 10% leaderboard from the Kaggle Competition.
+\newthought{The following} plot shows the best model for each method and the corresponding accuracy in the training set proxied by the 10% sample leaderboard from the Kaggle Competition.
 
 \includegraphics[width=400pt]{Graphs/Accuracy.png}
 
-# Conclusion
+# __Conclusion__
 \newthought{Considering} our results on the training set and acknowledging the results on the 10% of the Kaggle Competition, our final submission for this competition is the GBM model with the following parameters:  
 1. *Number of trees*: 250  
 2. *Maximum Depth*: 18    
 3. *Minimum Rows*: 10  
 4. *Shrinkage*: 0.1  
 
-\newthought{Finally}, we want to show the Confusion matrix for this model:
+\newthought{Finally}, we want to show the Confusion matrix for this model:  
+
+\newpage
 
         |Predicted|    
 --------|---------|------|----|---|---|----|----|--------
@@ -126,8 +128,32 @@ We are going to study the performance of following methods on the dataset.
   Totals| 17739   |25390 |3137|156|608|1323|1647| 0.07790
 
 *The larger misclassification happens between Class 1 and Class 2 as we mention in the start of this Report, it accounts for 66% of the misclassification between Classes.*
+    
+\newpage             
+# __Appendix__
 
-# Appendix
+## KNN
+
+K| Accuracy |  Public Score (10%)
+-|----------|---------------------
+**1**|  **0.77418** | **0.8626**
+2|  0.74394 |
+3|  0.76902 |
+
+## SVM
+
+Cost| Gamma |Accuracy | Public Score (10%)
+----|-------|---------|--------
+0.1 |  0.5  | 0.77244 |
+1   |  0.5  | 0.89456 |      
+**10**  |  **0.5**  | **0.96026** |   **0.87320**      
+0.1 |  1    | 0.71196 |
+1   |  1    | 0.92776 |      
+10  |  1    | 0.98742 | 0.78030
+0.1 |  2    | 0.56352 |
+1   |  2    | 0.96114 |    
+10  |  2    | 0.998   | 0.79920
+
 
 ## Random Forest
 
@@ -155,7 +181,7 @@ mtry  |  Accuracy  | CV     | Public Score (10%)
 56    |0.9017999   |10 Folds| 
 
 ## GBM
-\newthought{Initially} we left untouched the following parameters shrinkage (equal to 0.1) and the Minimum Rows (equal to 10). But when we found the best GBM model we try a grid for different Minimum Rows: 1,5,7.
+\newthought{Initially} we left shrinkage (equal to 0.1) and the Minimum Rows (equal to 10) parameters untouched. But when we found the best GBM model we try then tried a grid for different Minimum Rows: 1,5,7.
 
 
 Depth| Trees |Accuracy |  CV    | Public Score (10%)
@@ -177,25 +203,3 @@ Depth| Trees |Accuracy |  CV    | Public Score (10%)
 16   |  250  | 0.91872 |10 Fold |
 **18**   |  **250**  | **0.9221**  |**10 Fold** | **0.92790**
 22   |  250  | 0.92094 |10 Fold |
-
-## KNN
-
-K| Accuracy |  Public Score (10%)
--|----------|---------------------
-**1**|  **0.77418** | **0.8626**
-2|  0.74394 |
-3|  0.76902 |
-
-## SVM
-
-Cost| Gamma |Accuracy | Public Score (10%)
-----|-------|---------|--------
-0.1 |  0.5  | 0.77244 |
-1   |  0.5  | 0.89456 |      
-10  |  0.5  | 0.96026 |         
-0.1 |  1    | 0.71196 |
-1   |  1    | 0.92776 |      
-10  |  1    | 0.98742 |     
-0.1 |  2    | 0.56352 |
-**1**   | **2**    | **0.96114** |    **0.87320**
-10  |  2    | 0.998   |    
