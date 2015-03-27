@@ -17,7 +17,7 @@
 ##-------------------------------------------------------------------------------------------------
 rm(list=ls())
 
-source("Code/Packages.R")
+source("Code/Utilities/Packages.R")
 
 ###LOAD PACKAGES
 loadPackages(c("caret", "e1071"))
@@ -133,15 +133,13 @@ testing_set  <- testing_set[, conVarianza[1:(length(conVarianza)-1)]]
 # Doing some preprocess, as normalizing in this case
 #NormData <- preProcess(rbind(training_set[,-ncol(training_set)], testing_set),
                        #method = c("center", "scale"))
-NormData <- preProcess(rbind(training_set[,-c(11:53,56,57,60)], testing_set[,-c(11:53,56,57)]),
+NormData <- preProcess(rbind(training_set[,-ncol(training_set)], testing_set),
                        method = c("center", "scale"))
 
-training_set <- data.frame(predict(NormData,training_set[,-c(11:53,56,57,60)]),
-                            training_set[,c(11:53,56,57)],
+training_set <- data.frame(predict(NormData,training_set[,-ncol(training_set)]),
                            Cover_Type = as.factor(training_set$Cover_Type)) ##labels
 
-testing_set<-data.frame(predict(NormData,testing_set[,-c(11:53,56,57)]),
-                        testing_set[,c(11:53,56,57)])
+testing_set<-data.frame(predict(NormData,testing_set))
 
 ##Cleaning the not important values
 rm(conVarianza)
