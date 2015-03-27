@@ -16,6 +16,8 @@
 ##-------------------------------------------------------------------------------------------------
 ## LIBRARIES
 ##-------------------------------------------------------------------------------------------------
+# Clear environment
+rm(list=ls())
 source("Code/Utilities/Packages.R")
 
 ###LOAD PACKAGES
@@ -23,8 +25,6 @@ loadPackages(c("class","doSNOW","doParallel","dplyr","foreach"))
 
 ##-------------------------------------------------------------------------------------------------
 
-# Clear environment
-rm(list=ls())
 
 ##INCLUDE DATA
 source("Code/Utilities/ReadData.R")
