@@ -20,6 +20,8 @@
 rm(list=ls())
 if (!require("h2o")) install.packages("h2o")
 if (!require("doParallel")) install.packages("doParallel")
+library(h2o)
+library(doParallel)
 
 ##-------------------------------------------------------------------------------------------------
 ##INCLUDE DATA
@@ -53,12 +55,18 @@ localH2O <- h2o.init()
 # Link dataset to h20 cluster
 training_set_h2o <- as.h2o(localH2O, training_set, key = 'training_set')
 
-## Previous parameter values used
-# depth=8,12,16,18,20 
-# trees =100, 250, 500
-# minobsinnode= 1,5,10
-
 # Train GBM model
+
+###########################################
+#trainedGbm <- h2o.gbm(x = 1:(ncol(training_set)-1),y = ncol(training_set),
+#                      nfolds = 10, # cross validation
+#                      data = training_set_h2o,
+#                      interaction.depth = c(8,12,16,18,20),
+#                      n.trees = c(100,250,500),
+#                      n.minobsinnode = c(1,5.7),
+#                      shrinkage = c(0.1))
+###########################################
+
 trainedGbm <- h2o.gbm(x = 1:(ncol(training_set)-1),
                       y = ncol(training_set),
                       nfolds = 10, # cross validation
