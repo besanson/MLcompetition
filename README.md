@@ -8,7 +8,7 @@ Team members:
 
   
 **Index**:
-The following folder contains all the used codes to test different methods and create the report. The structure of the folder is the following structure:
+The following folder contains all the used codes to test different methods and create the report. The structure of the folder is the following:
 
 	-Code: contains the following files and folders:
 		- Packages: creates a function to install and load libraries
