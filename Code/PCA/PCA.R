@@ -17,9 +17,6 @@
 # We are going to apply 3 transformation type: linear, polynomial and radial transformation.
 
 ##-------------------------------------------------------------------------------------------------
-##Marias directory
-setwd("~/Documents/Box Sync/Current/Machine Learning/MLcompetition")
-
 rm(list=ls())
 ## LIBRARIES
 
