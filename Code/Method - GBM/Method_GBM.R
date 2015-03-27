@@ -58,7 +58,7 @@ training_set_h2o <- as.h2o(localH2O, training_set, key = 'training_set')
 
 ## Previous parameter values used
 # depth=8,12,16,18,20 
-# trees =100, 250, 500, 1000
+# trees =100, 250, 500
 # minobsinnode= 1,5,10
 
 # Train GBM model
@@ -72,7 +72,7 @@ trainedGbm <- h2o.gbm(x = 1:(ncol(training_set)-1),
                       shrinkage = c(0.1))
 
 # Apply selected method to test data
-testing_set_h2o <- as.h2o(localH2O, predict(preprocesamiento, testing_set), key = 'testing_set')
+testing_set_h2o <- as.h2o(localH2O, testing_set, key = 'testing_set')
 
 # Make prediction
 ypredict <- h2o.predict(trainedGbm, testing_set_h2o)
