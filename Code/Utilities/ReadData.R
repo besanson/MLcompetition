@@ -18,6 +18,8 @@
 rm(list=ls())
 if (!require("e1071")) install.packages("e1071")
 if (!require("caret")) install.packages("caret")
+require("e1071")
+require("caret")
 
 
 

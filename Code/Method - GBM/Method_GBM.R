@@ -20,8 +20,8 @@
 rm(list=ls())
 if (!require("h2o")) install.packages("h2o")
 if (!require("doParallel")) install.packages("doParallel")
-library(h2o)
-library(doParallel)
+require(h2o)
+require(doParallel)
 
 ##-------------------------------------------------------------------------------------------------
 ##INCLUDE DATA
@@ -63,7 +63,7 @@ training_set_h2o <- as.h2o(localH2O, training_set, key = 'training_set')
 #                      data = training_set_h2o,
 #                      interaction.depth = c(8,12,16,18,20),
 #                      n.trees = c(100,250,500),
-#                      n.minobsinnode = c(1,5.7),
+#                      n.minobsinnode = c(10),
 #                      shrinkage = c(0.1))
 ###########################################
 
